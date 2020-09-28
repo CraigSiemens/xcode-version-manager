@@ -9,11 +9,15 @@ struct ListCommand: ParsableCommand {
     
     func run() throws {
         let formatter = XcodeVersionFormatter()
+        
+        let current = try XcodeApplication.current()
+        
         try XcodeApplication
             .all()
             .sorted()
             .forEach {
-                print(formatter.string(from: $0))
+                let prefix = $0 == current ? "*" : " "
+                print(prefix, formatter.string(from: $0))
             }
     }
 }

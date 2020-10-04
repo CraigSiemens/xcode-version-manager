@@ -22,7 +22,7 @@ struct UseCommand: ParsableCommand {
             .first { $0.versionNumber.hasPrefix(version) }
         
         guard let xcode = firstXcode else {
-            throw CustomError(localizedDescription: "No version of Xcode found matching \"\(version)\"")
+            throw CustomError("No version of Xcode found matching \"\(version)\"")
         }
         
         let formatter = XcodeVersionFormatter()

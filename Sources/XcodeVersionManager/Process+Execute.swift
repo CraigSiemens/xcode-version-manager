@@ -7,14 +7,14 @@ extension Process {
         print(([command] + arguments).joined(separator: " "))
         #endif
         
-        let task = Process()
-        task.launchPath = command
-        task.arguments = arguments
-
+        let process = Process()
+        process.launchPath = command
+        process.arguments = arguments
+        
         let pipe = Pipe()
-        task.standardOutput = pipe
-
-        try task.run()
+        process.standardOutput = pipe
+        
+        try process.run()
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         return data
     }

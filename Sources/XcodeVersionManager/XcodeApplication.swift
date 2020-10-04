@@ -29,6 +29,22 @@ struct XcodeApplication {
     }
 }
 
+extension XcodeApplication {
+    func use() throws {
+        let arguments = [
+            "-s",
+            url.absoluteURL
+                .appendingPathComponent("Contents")
+                .appendingPathComponent("Developer")
+                .path
+        ]
+
+        let results = try Process.execute("/usr/bin/xcode-select", arguments: arguments)
+
+        print(results)
+    }
+}
+
 // MARK: - Comparable
 extension XcodeApplication: Comparable {
     static func < (lhs: XcodeApplication, rhs: XcodeApplication) -> Bool {

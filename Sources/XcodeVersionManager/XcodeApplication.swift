@@ -40,9 +40,7 @@ extension XcodeApplication {
                 .path
         ]
 
-        let results = try Process.execute("/usr/bin/xcode-select", arguments: arguments)
-
-        print(results)
+        try Process.execute("/usr/bin/xcode-select", arguments: arguments)
     }
 }
 

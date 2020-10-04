@@ -45,7 +45,7 @@ struct InstallCommand: ParsableCommand {
                                  options: .skipsSubdirectoryDescendants)
         
         guard let expandedApplication = contents.first(where: { $0.lastPathComponent.contains("Xcode") }) else {
-            throw CustomError(localizedDescription: "Could not find an Xcode application after expanding the xip.")
+            throw CustomError("Could not find an Xcode application after expanding the xip.")
         }
         
         let xcodeFileName = xipURL

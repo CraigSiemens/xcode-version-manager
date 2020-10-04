@@ -4,10 +4,12 @@ import Foundation
 struct InstallCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "install",
-        abstract: "Installs a Xcode xip"
+        abstract: "Installs a Xcode from a downloaded xip file.",
+        discussion: "Expanding a xip can take a long amount of time to complete and it isn't possible to show progress."
     )
     
-    @Argument(help: "The path to the xip file to install", completion: CompletionKind.file(extensions: ["xip"]))
+    @Argument(help: "The path to the xip file to install",
+              completion: CompletionKind.file(extensions: ["xip"]))
     var xipURL: URL
     
     func run() throws {

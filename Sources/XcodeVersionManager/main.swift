@@ -3,7 +3,8 @@ import Foundation
 
 struct XcodeVersionManager: ParsableCommand {
     static var configuration = CommandConfiguration(
-        abstract: "Manage multiple installed version of Xcode",
+        commandName: "xcvm",
+        abstract: "Manage multiple installed versions of Xcode",
         subcommands: [
             ListCommand.self,
             InstallCommand.self,

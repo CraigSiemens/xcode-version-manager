@@ -6,6 +6,7 @@ struct XcodeVersionManager: ParsableCommand {
         abstract: "Manage multiple installed version of Xcode",
         subcommands: [
             ListCommand.self,
+            InstallCommand.self,
             UseCommand.self
         ],
         defaultSubcommand: ListCommand.self

@@ -1,6 +1,7 @@
 import Foundation
 
 extension Process {
+    @discardableResult
     @objc static func execute(_ command: String, arguments: [String]) throws -> Data {
         #if DEBUG
         print(([command] + arguments).joined(separator: " "))

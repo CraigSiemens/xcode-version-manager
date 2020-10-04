@@ -29,10 +29,11 @@ struct XcodeApplication {
     }
 }
 
+// MARK: - Use
 extension XcodeApplication {
     func use() throws {
         let arguments = [
-            "-s",
+            "--switch",
             url.absoluteURL
                 .appendingPathComponent("Contents")
                 .appendingPathComponent("Developer")
@@ -54,6 +55,23 @@ extension XcodeApplication: Comparable {
             && lhs.buildNumber.compare(rhs.buildNumber, options: .numeric) == .orderedAscending
     }
 }
+
+// MARK: Current
+extension XcodeApplication {
+    static func current() throws -> XcodeApplication {
+        let results = try Process.execute("/usr/bin/xcode-select", arguments: ["--print-path"])
+        
+        let path = String(decoding: results, as: UTF8.self)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        let url = URL(fileURLWithPath: path)
+            .deletingLastPathComponent() // Developer
+            .deletingLastPathComponent() // Contents
+        
+        return try XcodeApplication(url: url)
+    }
+}
+
 
 // MARK: All
 extension XcodeApplication {

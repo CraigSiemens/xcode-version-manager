@@ -7,7 +7,12 @@ struct UseCommand: ParsableCommand {
         abstract: "Changes the version of Xcode being used"
     )
     
-    @Argument(help: "The version number to use")
+    @Argument(
+        help: ArgumentHelp(
+            "The version number to use",
+            discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the newest matching version of Xcode is used."
+        )
+    )
     var version: String
     
     func run() throws {
@@ -23,8 +28,7 @@ struct UseCommand: ParsableCommand {
         let formatter = XcodeVersionFormatter()
         let xcodeVersion = formatter.string(from: xcode)
         print("Switching to \(xcodeVersion)")
-        print(xcode.url.path)
-
+        
         try xcode.use()
     }
 }

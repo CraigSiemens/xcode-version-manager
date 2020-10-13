@@ -17,7 +17,11 @@ struct ListCommand: ParsableCommand {
             .sorted()
             .forEach {
                 let prefix = $0 == current ? "*" : " "
-                print(prefix, formatter.string(from: $0))
+                let formattedVersion = formatter.string(from: $0)
+                    .padding(toLength: 15, withPad: " ", startingAt: 0)
+                let name = $0.url.deletingPathExtension().lastPathComponent
+                
+                print(prefix, formattedVersion, name)
             }
     }
 }

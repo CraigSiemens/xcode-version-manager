@@ -34,6 +34,7 @@ struct InstallCommand: ParsableCommand {
             xipURL.path,
         ])
         
+        // Useful for testing so you don't have to wait for the xip to expand. Comment out the above line.
 //        try FileManager.default
 //            .createDirectory(at: tempFolder.appendingPathComponent("Xcode.app"),
 //                             withIntermediateDirectories: false,
@@ -53,6 +54,7 @@ struct InstallCommand: ParsableCommand {
             .lastPathComponent
             .map { CharacterSet.alphanumerics.contains($0) ? String($0) : "-" }
             .joined()
+            .replacingOccurrences(of: "-GM-seed", with: "")
         
         let destinationURL = destinationDirectoryURL
             .appendingPathComponent(xcodeFileName)

@@ -23,11 +23,9 @@ struct BetaVersionNumberCommand: ParsableCommand {
         
         let toolsInfo = toolsInfoClass.perform(NSSelectorFromString("toolsInfo")).takeRetainedValue()
         
-        guard toolsInfo.isBeta() else {
-            return
+        if toolsInfo.isBeta() {
+            print(toolsInfo.toolsBetaVersion())
         }
-        
-        print(toolsInfo.toolsBetaVersion())
     }
 }
 

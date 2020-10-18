@@ -14,12 +14,10 @@ struct ListCommand: ParsableCommand {
         
         try XcodeApplication
             .all()
-            .sorted(by: >)
+            .sorted(by: <)
             .forEach {
                 let prefix = $0 == current ? "*" : " "
                 print(prefix, formatter.string(from: $0))
-                
-                print($0.betaVersion)
             }
     }
 }

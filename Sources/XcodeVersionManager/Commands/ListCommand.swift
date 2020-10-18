@@ -14,7 +14,7 @@ struct ListCommand: ParsableCommand {
         
         try XcodeApplication
             .all()
-            .sorted()
+            .sorted(by: <)
             .forEach {
                 let prefix = $0 == current ? "*" : " "
                 let formattedVersion = formatter.string(from: $0)

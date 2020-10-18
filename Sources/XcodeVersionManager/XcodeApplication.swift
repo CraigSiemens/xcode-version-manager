@@ -5,27 +5,35 @@ struct XcodeApplication {
     
     let versionNumber: String
     let buildNumber: String
+    let betaVersion: String?
     
     init(url: URL) throws {
         self.url = url
         
-        let arguments = [
+        let versionNumberResults = try Process.execute("/usr/libexec/PlistBuddy", arguments: [
             "-c", "Print CFBundleShortVersionString",
             "-c", "Print ProductBuildVersion",
             url.absoluteURL
                 .appendingPathComponent("Contents")
                 .appendingPathComponent("version.plist")
                 .path
-        ]
+        ])
         
-        let results = try Process.execute("/usr/libexec/PlistBuddy", arguments: arguments)
-        
-        let parts = String(decoding: results, as: UTF8.self)
+        let parts = String(decoding: versionNumberResults, as: UTF8.self)
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .split(separator: "\n")
         
         self.versionNumber = String(parts[0])
         self.buildNumber = String(parts[1])
+        
+        let betaVersionResults = try Process.execute(Bundle.main.executablePath!, arguments: [
+            "beta-version-number",
+            url.path
+        ])
+        
+        self.betaVersion = String(decoding: betaVersionResults, as: UTF8.self)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .nilIfEmpty()
     }
 }
 
@@ -70,15 +78,14 @@ extension XcodeApplication {
     }
 }
 
-
 // MARK: All
 extension XcodeApplication {
     static func all() throws -> [XcodeApplication] {
         let urls = LSCopyApplicationURLsForBundleIdentifier("com.apple.dt.Xcode" as CFString, nil)?
             .takeUnretainedValue()
             as? [URL]
+            ?? []
         
-        return try (urls ?? [])
-            .map { try XcodeApplication(url: $0) }
+        return try urls.concurrentMap { try XcodeApplication(url: $0) }
     }
 }

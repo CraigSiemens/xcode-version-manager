@@ -8,6 +8,7 @@ struct XcodeVersionManager: ParsableCommand {
         subcommands: [
             ListCommand.self,
             InstallCommand.self,
+            UninstallCommand.self,
             UseCommand.self,
             
             // Private commands

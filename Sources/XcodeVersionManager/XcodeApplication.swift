@@ -1,6 +1,6 @@
 import Foundation
 
-struct XcodeApplication {
+struct XcodeApplication: Encodable {
     let url: URL
     
     let versionNumber: String
@@ -56,9 +56,20 @@ extension XcodeApplication {
 extension XcodeApplication: Comparable {
     static func < (lhs: XcodeApplication, rhs: XcodeApplication) -> Bool {
         let versionResult = lhs.versionNumber.compare(rhs.versionNumber, options: .numeric)
-        return versionResult == .orderedAscending
-            || versionResult == .orderedSame
-            && lhs.buildNumber.compare(rhs.buildNumber, options: .numeric) == .orderedAscending
+        
+        guard versionResult == .orderedSame else {
+            return versionResult == .orderedAscending
+        }
+        
+        guard let rhsBetaVersion = rhs.betaVersion else {
+            return true
+        }
+        
+        guard let lhsBetaVersion = lhs.betaVersion else {
+            return false
+        }
+        
+        return lhsBetaVersion.compare(rhsBetaVersion, options: .numeric) == .orderedAscending
     }
 }
 

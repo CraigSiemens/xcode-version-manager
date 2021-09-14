@@ -8,11 +8,53 @@ struct InstallCommand: ParsableCommand {
         discussion: "Expanding a xip can take a long amount of time to complete and it isn't possible to show progress."
     )
     
-    @Argument(help: "The path to the xip file to install",
-              completion: CompletionKind.file(extensions: ["xip"]))
-    var xipURL: URL
+    @Argument(
+        help: "The path to the xip or download file to install",
+        completion: CompletionKind.file(extensions: ["xip", "download"])
+    )
+    var fileURL: URL
     
     func run() throws {
+        switch fileURL.pathExtension {
+        case "download":
+            try waitForDownloadCompletion(fileURL)
+        default:
+            try installXip(fileURL)
+        }
+    }
+    
+    private func waitForDownloadCompletion(_ url: URL) throws {
+        print("Waiting for download to complete.")
+        
+        let queue = DispatchQueue(label: "download-watcher")
+        let descriptor = open(url.path, O_EVTONLY)
+        let deleteObserver = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: descriptor,
+            eventMask: .delete,
+            queue: queue
+        )
+        
+        let group = DispatchGroup()
+        group.enter()
+        deleteObserver.setEventHandler {
+            group.leave()
+        }
+        
+        deleteObserver.resume()
+        group.wait()
+        
+        try installXip(url.deletingPathExtension())
+    }
+    
+    private func installXip(_ url: URL) throws {
+        guard url.pathExtension == "xip" else {
+            throw ValidationError("Unable to handle file with extension \"\(fileURL.pathExtension)\"")
+        }
+        
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw ValidationError("File doesn't exist at \"\(fileURL.pathExtension)\"")
+        }
+        
         let destinationDirectoryURL = try FileManager.default
             .url(for: .applicationDirectory,
                  in: .localDomainMask,
@@ -27,11 +69,11 @@ struct InstallCommand: ParsableCommand {
         
         FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
         
-        print("Expanding \(xipURL.lastPathComponent), this could take a while.")
+        print("Expanding \(url.lastPathComponent), this will definitely take a while.")
         
         try Process.execute("/usr/bin/xip", arguments: [
             "--expand",
-            xipURL.path,
+            url.path,
         ])
         
         // Useful for testing so you don't have to wait for the xip to expand. Comment out the above line.
@@ -49,18 +91,16 @@ struct InstallCommand: ParsableCommand {
             throw CustomError("Could not find an Xcode application after expanding the xip.")
         }
         
-        let xcodeFileName = xipURL
-            .deletingPathExtension()
-            .lastPathComponent
-            .map { CharacterSet.alphanumerics.contains($0) ? String($0) : "-" }
-            .joined()
-            .replacingOccurrences(of: "-GM-seed", with: "")
+        print("Verifying")
         
+        let xcodeApplication = try XcodeApplication(url: expandedApplication)
+        let xcodeFileName = XcodeFileNameFormatter().string(from: xcodeApplication)
+                
         let destinationURL = destinationDirectoryURL
             .appendingPathComponent(xcodeFileName)
             .appendingPathExtension(expandedApplication.pathExtension)
         
-        print("Moving Xcode to \(destinationURL.path)")
+        print("Moving Xcode to \(destinationURL.path) \(Date())")
         
         try FileManager.default
             .moveItem(at: expandedApplication,

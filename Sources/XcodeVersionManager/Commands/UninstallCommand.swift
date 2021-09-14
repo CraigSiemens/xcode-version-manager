@@ -25,8 +25,7 @@ struct UninstallCommand: ParsableCommand {
             throw CustomError("No version of Xcode found matching \"\(version)\"")
         }
         
-        print("Are you sure you want to uninstall \(xcode.url.lastPathComponent)? [y/N]")
-        guard readLine(strippingNewline: true)?.lowercased() == "y" else {
+        guard askConfirmation("Are you sure you want to uninstall \(xcode.url.lastPathComponent)?") else {
             return
         }
         

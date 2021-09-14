@@ -11,9 +11,8 @@ let package = Package(
         .executable(
             name: "xcvm",
             targets: ["XcodeVersionManager"]),
-        .executable(
-            name: "XcodeVersionManager",
-            targets: ["XcodeVersionManager"]),
+        .library(name: "TableKit",
+                 targets: ["TableKit"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -25,10 +24,16 @@ let package = Package(
         .target(
             name: "XcodeVersionManager",
             dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .target(name: "TableKit")
             ]),
         .testTarget(
             name: "XcodeVersionManagerTests",
             dependencies: ["XcodeVersionManager"]),
+        
+        .target(name: "TableKit"),
+        .testTarget(
+            name: "TableKitTests",
+            dependencies: ["TableKit"]),
     ]
 )

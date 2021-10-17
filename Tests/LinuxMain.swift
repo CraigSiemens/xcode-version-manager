@@ -1,6 +1,6 @@
 import XCTest
 
-import xcode_version_managerTests
+import XcodeVersionManagerTests
 import TableKitTests
 
 var tests = [XCTestCaseEntry]()

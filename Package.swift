@@ -10,9 +10,12 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .executable(
             name: "xcvm",
-            targets: ["XcodeVersionManager"]),
-        .library(name: "TableKit",
-                 targets: ["TableKit"])
+            targets: ["XcodeVersionManager"]
+        ),
+        .library(
+            name: "TableKit",
+            targets: ["TableKit"]
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -26,14 +29,19 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .target(name: "TableKit")
-            ]),
+            ]
+        ),
         .testTarget(
             name: "XcodeVersionManagerTests",
-            dependencies: ["XcodeVersionManager"]),
+            dependencies: ["XcodeVersionManager"]
+        ),
         
-        .target(name: "TableKit"),
+        .target(
+            name: "TableKit"
+        ),
         .testTarget(
             name: "TableKitTests",
-            dependencies: ["TableKit"]),
+            dependencies: ["TableKit"]
+        ),
     ]
 )

@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Craig Siemens on 2020-11-07.
-//
-
 import Foundation
 
 struct TableRenderer {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import xcvm
+@testable import XcodeVersionManager
 
 final class XcodeVersionManagerTests: XCTestCase {
     func testExample() {

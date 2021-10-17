@@ -31,10 +31,10 @@ let package = Package(
                 .target(name: "TableKit")
             ]
         ),
-        .testTarget(
-            name: "XcodeVersionManagerTests",
-            dependencies: ["XcodeVersionManager"]
-        ),
+//        .testTarget(
+//            name: "XcodeVersionManagerTests",
+//            dependencies: ["XcodeVersionManager"]
+//        ),
         
         .target(
             name: "TableKit"

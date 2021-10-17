@@ -2,54 +2,52 @@ import XCTest
 @testable import TableKit
 
 final class TableEncoderTests: XCTestCase {
-    let encoder = TableEncoder(style: .whitespace)
+    var encoder = TableEncoder(style: .whitespace)
     
-    func testEncodingPrimitives() {
+    func testEncodingPrimitives() throws {
         let data = [
             ["A": 1],
             ["B": 2]
         ]
         let expected = [
-            "  A B\n",
-            "0 1  \n",
-            "1   2\n"
+            "A B\n",
+            "1  \n",
+            "  2\n"
         ].joined()
         
-        let output = try? encoder.encode(data)
+        let output = try encoder.encode(data)
         XCTAssertEqual(output, expected)
     }
     
-    func testEncodingStructs() {
+    func testEncodingStructs() throws {
         let characters: [Character] = [
             .init(name: "Mario", color: "red", size: "medium"),
             .init(name: "Yoshi", color: "green", size: "small"),
             .init(name: "Bowser", color: "orange", size: "large")
         ]
         let expected = [
-            "  name   color  size  \n",
-            "0 Mario  red    medium\n",
-            "1 Yoshi  green  small \n",
-            "2 Bowser orange large \n"
+            "name   color  size  \n",
+            "Mario  red    medium\n",
+            "Yoshi  green  small \n",
+            "Bowser orange large \n"
         ].joined()
-
-        let output = try? encoder.encode(characters)
+        
+        let output = try encoder.encode(characters)
         XCTAssertEqual(output, expected)
     }
-
-    func testEncodingArrays() {
+    
+    func testEncodingArrays() throws {
         let data = [
             ["A", "B", "C"],
             ["D", "E", "F"]
         ]
         let expected = [
-            "  name   color  size  \n",
-            "0 Mario  red    medium\n",
-            "1 Yoshi  green  small \n",
-            "2 Bowser orange large \n"
+            "0 1 2\n",
+            "A B C\n",
+            "D E F\n"
         ].joined()
-
-        let output = try? encoder.encode(data)
-        print(output!)
+        
+        let output = try encoder.encode(data)
         XCTAssertEqual(output, expected)
     }
     

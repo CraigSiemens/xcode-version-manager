@@ -22,33 +22,42 @@ struct TableRenderer {
         
         var output: String = ""
         
+        func add(line: String) {
+            if !output.isEmpty, output.last != "\n" {
+                output += "\n"
+            }
+            
+            output += line.trimmingTrailingCharacters(in: .whitespaces)
+        }
+        
         func addHorizontalLine(line: String, leading: String, join: String, trailing: String) {
-            let startingLength = output.count
+            var lineContent = ""
             
-            output += leading
+            lineContent += leading
             
-            output += orderedWidths
+            lineContent += orderedWidths
                 .map { String(repeating: line, count: $0) }
                 .joined(separator: join)
             
-            output += trailing
+            lineContent += trailing
             
-            if startingLength != output.count {
-                output += "\n"
-            }
+            add(line: lineContent)
         }
         
         func addValuesLine(values: [String], leading: String, join: String, trailing: String) {
+            var lineContent = ""
+            
             let padding = String(repeating: " ", count: style.paddingSize)
             
-            output += leading + padding
+            lineContent += leading + padding
             
-            output += zip(values, orderedWidths)
+            lineContent += zip(values, orderedWidths)
                 .map { $0.0.padding(toLength: $0.1 - style.paddingSize * 2, withPad: " ", startingAt: 0) }
                 .joined(separator: padding + join + padding)
             
-            output += padding + trailing
-            output += "\n"
+            lineContent += padding + trailing
+            
+            add(line: lineContent)
         }
         
         // MARK: - Header
@@ -57,7 +66,12 @@ struct TableRenderer {
                           join: style.header.topJoin,
                           trailing: style.header.topTrailingCorner)
         
-        addValuesLine(values: data.columnKeys,
+        var columnKeys = data.columnKeys
+        if style.showRowKeys {
+            columnKeys.insert("", at: 0)
+        }
+
+        addValuesLine(values: columnKeys,
                       leading: style.header.leading,
                       join: style.header.join,
                       trailing: style.header.trailing)
@@ -69,7 +83,11 @@ struct TableRenderer {
         
         // MARK: - Rows
         for rowKey in data.rowKeys {
-            let rowValues = data.columnKeys.map { data.dictionary[rowKey]?[$0] ?? "" }
+            var rowValues = data.columnKeys.map { data.dictionary[rowKey]?[$0] ?? "" }
+            
+            if style.showRowKeys {
+                rowValues.insert(rowKey, at: 0)
+            }
             
             addValuesLine(values: rowValues,
                           leading: style.body.leading,
@@ -95,5 +113,25 @@ struct TableRenderer {
         }
         
         return output
+    }
+}
+
+private extension StringProtocol {
+    func trimmingTrailingCharacters(in characterSet: CharacterSet) -> Self.SubSequence {
+        var view = self[...]
+        
+        while let last = view.last,
+              characterSet.contains(last) {
+            view = view.dropLast()
+        }
+        
+        return view
+    }
+}
+
+private extension CharacterSet {
+    func contains(_ character: Character) -> Bool {
+        CharacterSet(charactersIn: "\(character)")
+            .isSubset(of: self)
     }
 }

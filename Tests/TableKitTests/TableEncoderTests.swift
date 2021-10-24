@@ -9,11 +9,13 @@ final class TableEncoderTests: XCTestCase {
             ["A": 1],
             ["B": 2]
         ]
-        let expected = [
-            "A B\n",
-            "1  \n",
-            "  2\n"
-        ].joined()
+        
+        let expected = """
+        A B
+        1
+          2
+        
+        """
         
         let output = try encoder.encode(data)
         XCTAssertEqual(output, expected)
@@ -25,12 +27,14 @@ final class TableEncoderTests: XCTestCase {
             .init(name: "Yoshi", color: "green", size: "small"),
             .init(name: "Bowser", color: "orange", size: "large")
         ]
-        let expected = [
-            "name   color  size  \n",
-            "Mario  red    medium\n",
-            "Yoshi  green  small \n",
-            "Bowser orange large \n"
-        ].joined()
+        
+        let expected = """
+        name   color  size
+        Mario  red    medium
+        Yoshi  green  small
+        Bowser orange large
+        
+        """
         
         let output = try encoder.encode(characters)
         XCTAssertEqual(output, expected)
@@ -41,20 +45,17 @@ final class TableEncoderTests: XCTestCase {
             ["A", "B", "C"],
             ["D", "E", "F"]
         ]
-        let expected = [
-            "0 1 2\n",
-            "A B C\n",
-            "D E F\n"
-        ].joined()
+        
+        let expected = """
+        0 1 2
+        A B C
+        D E F
+        
+        """
         
         let output = try encoder.encode(data)
         XCTAssertEqual(output, expected)
     }
-    
-    static var allTests = [
-        ("testEncodingPrimitives", testEncodingPrimitives),
-        ("testEncodingStructs", testEncodingStructs),
-    ]
 }
 
 struct Character: Encodable {

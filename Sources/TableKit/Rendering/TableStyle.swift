@@ -5,6 +5,7 @@ public struct TableStyle {
     public var body: Body
     
     public var showRowKeys: Bool = false
+    public var addTrailingNewline: Bool = false
     public var paddingSize: Int = 0
     
     public init(header: TableStyle.Header, body: TableStyle.Body, showRowKeys: Bool = false, paddingSize: Int = 0) {

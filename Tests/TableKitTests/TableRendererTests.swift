@@ -37,7 +37,6 @@ final class TableRendererTests: XCTestCase {
         ├───────┼───────┼───────┤
         │ C - E │ C - F │ C - G │
         └───────┴───────┴───────┘
-        
         """
         
         let style = TableStyle.default
@@ -56,7 +55,6 @@ final class TableRendererTests: XCTestCase {
         ├───┼───────┼───────┼───────┤
         │ C │ C - E │ C - F │ C - G │
         └───┴───────┴───────┴───────┘
-        
         """
         
         var style = TableStyle.default
@@ -73,7 +71,6 @@ final class TableRendererTests: XCTestCase {
         A - E A - F A - G
         B - E B - F B - G
         C - E C - F C - G
-        
         """
         
         let style = TableStyle.whitespace
@@ -87,11 +84,26 @@ final class TableRendererTests: XCTestCase {
         A A - E A - F A - G
         B B - E B - F B - G
         C C - E C - F C - G
-        
         """
         
         var style = TableStyle.whitespace
         style.showRowKeys = true
+        
+        let output = TableRenderer(style: style).render(data: data)
+        XCTAssertEqual(output, expected)
+    }
+    
+    func testWhitespaceStyleWithAddTrailingNewline() throws {
+        let expected = """
+        E     F     G
+        A - E A - F A - G
+        B - E B - F B - G
+        C - E C - F C - G
+        
+        """
+        
+        var style = TableStyle.whitespace
+        style.addTrailingNewline = true
         
         let output = TableRenderer(style: style).render(data: data)
         XCTAssertEqual(output, expected)

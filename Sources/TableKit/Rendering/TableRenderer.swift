@@ -23,11 +23,13 @@ struct TableRenderer {
         var output: String = ""
         
         func add(line: String) {
-            if !output.isEmpty, output.last != "\n" {
+            let trimmedLine = line.trimmingTrailingCharacters(in: .whitespaces)
+            
+            if !trimmedLine.isEmpty, !output.isEmpty, output.last != "\n" {
                 output += "\n"
             }
             
-            output += line.trimmingTrailingCharacters(in: .whitespaces)
+            output += trimmedLine
         }
         
         func addHorizontalLine(line: String, leading: String, join: String, trailing: String) {
@@ -108,7 +110,7 @@ struct TableRenderer {
             }
         }
         
-        if output.last != "\n" {
+        if style.addTrailingNewline, output.last != "\n" {
             output += "\n"
         }
         

@@ -14,7 +14,6 @@ final class TableEncoderTests: XCTestCase {
         A B
         1
           2
-        
         """
         
         let output = try encoder.encode(data)
@@ -33,7 +32,6 @@ final class TableEncoderTests: XCTestCase {
         Mario  red    medium
         Yoshi  green  small
         Bowser orange large
-        
         """
         
         let output = try encoder.encode(characters)
@@ -50,7 +48,6 @@ final class TableEncoderTests: XCTestCase {
         0 1 2
         A B C
         D E F
-        
         """
         
         let output = try encoder.encode(data)

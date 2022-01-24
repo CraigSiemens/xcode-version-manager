@@ -5,7 +5,7 @@ A command line tool to manage multiple installations of Xcode.
 ## Installation
 
 ```
-make install
+brew install craigsiemens/tap/xcode-version-manager
 ```
 
 ## Usage

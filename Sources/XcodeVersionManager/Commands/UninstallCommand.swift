@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-struct UninstallCommand: ParsableCommand {
+struct UninstallCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "uninstall",
         abstract: "Uninstalls a version of Xcode"
@@ -15,8 +15,8 @@ struct UninstallCommand: ParsableCommand {
     )
     var version: String
     
-    func run() throws {
-        let firstXcode: XcodeApplication? = try XcodeApplication
+    func run() async throws {
+        let firstXcode = try await XcodeApplication
             .all()
             .sorted(by: <)
             .first { $0.versionNumber.hasPrefix(version) }

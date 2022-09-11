@@ -3,9 +3,10 @@ import Foundation
 
 struct BetaVersionNumberCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "beta-version-number",
+        commandName: "_beta-version-number",
         abstract: "Internal command to get the beta version number from an Xcode app.",
-        shouldDisplay: false)
+        shouldDisplay: false
+    )
     
     @Argument(help: "The path to the Xcode app")
     var xcodeURL: URL

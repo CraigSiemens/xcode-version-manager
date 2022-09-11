@@ -2,18 +2,18 @@ import ArgumentParser
 import Foundation
 import TableKit
 
-struct ListCommand: ParsableCommand {
+struct ListCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Lists the installed versions of Xcode"
     )
     
-    func run() throws {
+    func run() async throws {
         let formatter = XcodeVersionFormatter()
         
         let current = try XcodeApplication.current()
         
-        let formattedValues = try XcodeApplication
+        let formattedValues = try await XcodeApplication
             .all()
             .sorted(by: <)
             .map {

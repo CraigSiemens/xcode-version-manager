@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-struct UseCommand: ParsableCommand {
+struct UseCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "use",
         abstract: "Changes the version of Xcode being used"
@@ -15,8 +15,8 @@ struct UseCommand: ParsableCommand {
     )
     var version: String
     
-    func run() throws {
-        let firstXcode: XcodeApplication? = try XcodeApplication
+    func run() async throws {
+        let firstXcode = try await XcodeApplication
             .all()
             .sorted(by: >)
             .first { $0.versionNumber.hasPrefix(version) }

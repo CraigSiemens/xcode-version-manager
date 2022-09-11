@@ -10,14 +10,17 @@ struct XcodeApplication: Encodable {
     init(url: URL) throws {
         self.url = url
         
-        let versionNumberResults = try Process.execute("/usr/libexec/PlistBuddy", arguments: [
-            "-c", "Print CFBundleShortVersionString",
-            "-c", "Print ProductBuildVersion",
-            url.absoluteURL
-                .appendingPathComponent("Contents")
-                .appendingPathComponent("version.plist")
-                .path
-        ])
+        let versionNumberResults = try Process.execute(
+            "/usr/libexec/PlistBuddy",
+            arguments: [
+                "-c", "Print CFBundleShortVersionString",
+                "-c", "Print ProductBuildVersion",
+                url.absoluteURL
+                    .appendingPathComponent("Contents")
+                    .appendingPathComponent("version.plist")
+                    .path
+            ]
+        )
         
         let parts = String(decoding: versionNumberResults, as: UTF8.self)
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -26,10 +29,13 @@ struct XcodeApplication: Encodable {
         self.versionNumber = String(parts[0])
         self.buildNumber = String(parts[1])
         
-        let betaVersionResults = try Process.execute(Bundle.main.executablePath!, arguments: [
-            "beta-version-number",
-            url.path
-        ])
+        let betaVersionResults = try Process.execute(
+            Bundle.main.executablePath!,
+            arguments: [
+                "_beta-version-number",
+                url.path
+            ]
+        )
         
         self.betaVersion = String(decoding: betaVersionResults, as: UTF8.self)
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -40,15 +46,16 @@ struct XcodeApplication: Encodable {
 // MARK: - Use
 extension XcodeApplication {
     func use() throws {
-        let arguments = [
-            "--switch",
-            url.absoluteURL
-                .appendingPathComponent("Contents")
-                .appendingPathComponent("Developer")
-                .path
-        ]
-
-        try Process.execute("/usr/bin/xcode-select", arguments: arguments)
+        try Process.execute(
+            "/usr/bin/xcode-select",
+            arguments: [
+                "--switch",
+                url.absoluteURL
+                    .appendingPathComponent("Contents")
+                    .appendingPathComponent("Developer")
+                    .path
+            ]
+        )
     }
 }
 
@@ -91,12 +98,19 @@ extension XcodeApplication {
 
 // MARK: All
 extension XcodeApplication {
-    static func all() throws -> [XcodeApplication] {
+    static func all() async throws -> [XcodeApplication] {
         let urls = LSCopyApplicationURLsForBundleIdentifier("com.apple.dt.Xcode" as CFString, nil)?
             .takeUnretainedValue()
             as? [URL]
             ?? []
         
-        return try urls.concurrentMap { try XcodeApplication(url: $0) }
+        return try await withThrowingTaskGroup(of: XcodeApplication.self) { group in
+            for url in urls {
+                group.addTask { try XcodeApplication(url: url) }
+            }
+            
+            return try await group
+                .reduce(into: []) { $0.append($1) }
+        }
     }
 }

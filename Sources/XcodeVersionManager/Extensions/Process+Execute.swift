@@ -1,11 +1,15 @@
 import Foundation
+import os
 
 extension Process {
+    private static let logger = Logger(
+        subsystem: Bundle.main.executableURL!.lastPathComponent,
+        category: "Process"
+    )
+    
     @discardableResult
     @objc static func execute(_ command: String, arguments: [String]) throws -> Data {
-        #if DEBUG
-        print(([command] + arguments).joined(separator: " "))
-        #endif
+        logger.debug("\(command, privacy: .public) \(arguments.joined(separator: " "), privacy: .public)")
         
         let process = Process()
         process.launchPath = command

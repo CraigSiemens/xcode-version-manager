@@ -35,6 +35,6 @@ endif
 	git tag -a $(NEW_VERSION) -m "Release $(NEW_VERSION)"
 	git push origin $(MAIN_BRANCH)
 	git push origin $(NEW_VERSION)
-
+	gh release create $(NEW_VERSION) --generate-notes
 %:
 	@:

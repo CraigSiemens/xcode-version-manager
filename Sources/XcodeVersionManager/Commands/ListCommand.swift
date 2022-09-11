@@ -5,7 +5,7 @@ import TableKit
 struct ListCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
-        abstract: "Lists the installed versions of Xcode"
+        abstract: "Lists the installed versions of Xcode."
     )
     
     func run() async throws {

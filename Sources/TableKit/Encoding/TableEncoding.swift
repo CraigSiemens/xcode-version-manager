@@ -26,8 +26,13 @@ struct TableEncoding: Encoder {
 
 extension TableEncoding {
     final class Data {
+        /// The row keys in the order they will be displayed.
         var rowKeys: [String] = []
+        
+        /// The column keys in the order they will be displayed.
         var columnKeys: [String] = []
+        
+        /// The content of the table keyed by row keys then column.
         var dictionary: [String: [String: String]] = [:]
         
         func encode(key codingKey: [CodingKey], value: String?) {

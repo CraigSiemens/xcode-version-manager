@@ -4,12 +4,12 @@ import Foundation
 struct UseCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "use",
-        abstract: "Changes the version of Xcode being used"
+        abstract: "Changes the version of Xcode being used."
     )
     
     @Argument(
         help: ArgumentHelp(
-            "The version number to use",
+            "The version number to use.",
             discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the newest matching version of Xcode is used."
         )
     )

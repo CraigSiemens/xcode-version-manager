@@ -1,5 +1,8 @@
 import Foundation
 
+/// An object that encodes instances of a data type into a text based table.
+///
+/// The `CodingKey` will be used for the values of the row and column headers.
 public struct TableEncoder {
     public typealias Output = String
     

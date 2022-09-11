@@ -4,12 +4,9 @@ struct TableRenderer {
     let style: TableStyle
     
     func render(data: TableEncoding.Data) -> String {
-        let leadingColumnWidth = (data.rowKeys.map { $0.count }.max() ?? 0)
-            + style.paddingSize * 2
-        
         let columnWidths = data.dictionary.values
-            .map { (value) in
-                value.mapValues { $0.count + style.paddingSize * 2 }
+            .map { row in
+                row.mapValues { $0.count + style.paddingSize * 2 }
             }
             .reduce(into: [String: Int]()) { (result, row) in
                 result.merge(row) { max($0, $1) }
@@ -17,6 +14,9 @@ struct TableRenderer {
         
         var orderedWidths = data.columnKeys.map { columnWidths[$0] ?? $0.count }
         if style.showRowKeys {
+            let leadingColumnWidth = (data.rowKeys.map { $0.count }.max() ?? 0)
+                + style.paddingSize * 2
+            
             orderedWidths.insert(leadingColumnWidth, at: 0)
         }
         

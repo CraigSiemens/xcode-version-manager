@@ -4,12 +4,12 @@ import Foundation
 struct UninstallCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "uninstall",
-        abstract: "Uninstalls a version of Xcode"
+        abstract: "Uninstalls a version of Xcode."
     )
     
     @Argument(
         help: ArgumentHelp(
-            "The version number of Xcode to uninstall",
+            "The version number of Xcode to uninstall.",
             discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the oldest matching version of Xcode is used."
         )
     )

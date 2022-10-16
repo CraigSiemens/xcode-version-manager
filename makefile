@@ -6,7 +6,7 @@ MAIN_BRANCH=main
 
 BINARIES_FOLDER=/usr/local/bin
 
-.PHONY: all clean build install uninstall
+.PHONY: all clean build completions readme push-version
 
 all: build
 
@@ -34,7 +34,7 @@ ifneq ($(strip $(shell git branch --show-current)),$(MAIN_BRANCH))
 endif
 	$(eval NEW_VERSION := $(filter-out $@,$(MAKECMDGOALS)))
 	echo "let version = \"$(NEW_VERSION)\"" > Sources/XcodeVersionManager/Utilities/Version.swift
-	readme
+	make readme
 	git commit -a -m "Release $(NEW_VERSION)"
 	git tag -a $(NEW_VERSION) -m "Release $(NEW_VERSION)"
 	git push origin $(MAIN_BRANCH)

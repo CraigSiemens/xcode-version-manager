@@ -8,12 +8,22 @@ A command line tool to manage multiple installations of Xcode.
 brew install craigsiemens/tap/xcode-version-manager
 ```
 
-## Usage
+## Details
+```
+OVERVIEW: Manage multiple installed versions of Xcode.
 
-`xcvm -h` - Show the available subcommands.
+USAGE: xcvm <subcommand>
 
-`xcvm list` - Shows the installed versions of Xcode and the currently used one.
+OPTIONS:
+  --version               Show the version.
+  -h, --help              Show help information.
 
-`xcvm install` - Installs Xcode from a passed in xip file. Names the Xcode app with the version number so multiple versions can be installed side by side.
+SUBCOMMANDS:
+  list (default)          Lists the installed versions of Xcode.
+  install                 Installs a version of Xcode from a downloaded xip
+                          file.
+  uninstall               Uninstalls a version of Xcode.
+  use                     Changes the version of Xcode being used.
 
-`xcvm use {VERSION_NUMBER}` - Switches the current version of Xcode being used to one that matches the version number.
+  See 'xcvm help <subcommand>' for detailed help.
+```

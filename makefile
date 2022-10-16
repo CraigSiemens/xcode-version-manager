@@ -22,6 +22,9 @@ completions: build
 	"$(BINARY)" --generate-completion-script zsh > "$(COMPLETIONS_DIR)/zsh"
 	"$(BINARY)" --generate-completion-script fish > "$(COMPLETIONS_DIR)/fish"
 
+readme: build
+	perl -i -0pe "s/## Details\n\`\`\`(.|\n)*?\`\`\`/## Details\n\`\`\`\n$$("$(BINARY)" help)\n\`\`\`/g" README.md
+
 push-version:
 ifneq ($(strip $(shell git status --untracked-files=no --porcelain 2>/dev/null)),)
 	$(error git state is not clean)
@@ -31,6 +34,7 @@ ifneq ($(strip $(shell git branch --show-current)),$(MAIN_BRANCH))
 endif
 	$(eval NEW_VERSION := $(filter-out $@,$(MAKECMDGOALS)))
 	echo "let version = \"$(NEW_VERSION)\"" > Sources/XcodeVersionManager/Utilities/Version.swift
+	readme
 	git commit -a -m "Release $(NEW_VERSION)"
 	git tag -a $(NEW_VERSION) -m "Release $(NEW_VERSION)"
 	git push origin $(MAIN_BRANCH)

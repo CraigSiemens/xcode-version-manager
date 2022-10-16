@@ -56,6 +56,16 @@ extension XcodeApplication {
                     .path
             ]
         )
+        
+        // Register Xcode so plugins work correctly.
+        // https://nshipster.com/xcode-source-extensions/#using-pluginkit
+        try Process.execute(
+            "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister",
+            arguments: [
+                "-f",
+                url.path
+            ]
+        )
     }
 }
 

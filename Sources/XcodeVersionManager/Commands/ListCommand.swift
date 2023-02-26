@@ -31,6 +31,7 @@ struct ListCommand: AsyncParsableCommand {
     }
 }
 
+// MARK: - FormattedXcodeApplication
 private struct FormattedXcodeApplication: Encodable {
     let current: String
     let formattedVersion: String
@@ -47,9 +48,11 @@ private struct FormattedXcodeApplication: Encodable {
 
 private extension TableStyle.Header {
     static var inside: TableStyle.Header {
-        .init(join: "┃",
-              bottom: "━",
-              bottomJoin: "╇")
+        .init(
+            join: "┃",
+            bottom: "━",
+            bottomJoin: "╇"
+        )
     }
 }
 

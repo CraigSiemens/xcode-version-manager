@@ -15,6 +15,10 @@ struct BetaVersionNumberCommand: ParsableCommand {
         let dvtFoundationURL = xcodeURL
             .appendingPathComponent("Contents/SharedFrameworks/DVTFoundation.framework/DVTFoundation")
         
+        guard FileManager.default.fileExists(atPath: dvtFoundationURL.path) else {
+            return
+        }
+        
         let frameworkHandle = dlopen(dvtFoundationURL.path, RTLD_NOW)
         defer { dlclose(frameworkHandle) }
         

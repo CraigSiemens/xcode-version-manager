@@ -1,12 +1,21 @@
 import ArgumentParser
 import Foundation
+import Unxip
+import os
 
-struct InstallCommand: ParsableCommand {
+struct InstallCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "install",
         abstract: "Installs a version of Xcode from a downloaded xip file.",
         discussion: "Can wait for the download of a xip to complete before installing it. Expanding a xip can take a long amount of time to complete and it isn't possible to show progress."
     )
+    
+    private static let logger = Logger(
+        subsystem: Bundle.main.executableURL!.lastPathComponent,
+        category: "install"
+    )
+    
+    private static let signposter = OSSignposter(logger: logger)
     
     @Argument(
         help: "The path to the xip or download file to install.",
@@ -14,17 +23,45 @@ struct InstallCommand: ParsableCommand {
     )
     var fileURL: URL
     
-    func run() throws {
-        switch fileURL.pathExtension {
-        case "download":
-            try waitForDownloadCompletion(fileURL)
-        default:
-            try installXip(fileURL)
+    @Flag(
+        help: .init(
+            "Expand the xip file faster by using unxip.",
+            discussion: """
+            Instead of using the `xip` command for expanding the file, it uses `unxip` which is an open source implementation of expanding xip files.
+            Source: https://github.com/saagarjha/unxip
+            """
+        )
+    )
+    var useUnxip = false
+    
+    func run() async throws {
+        let destinationDirectoryURL = try FileManager.default
+            .url(
+                for: .applicationDirectory,
+                in: .localDomainMask,
+                appropriateFor: nil,
+                create: false
+            )
+        
+        var fileURL = fileURL
+        
+        if fileURL.pathExtension == "download" {
+            fileURL = try await waitForDownloadCompletion(fileURL)
         }
+        
+        fileURL = try await expandXip(fileURL, for: destinationDirectoryURL)
+        
+        try await installXcode(fileURL, to: destinationDirectoryURL)
     }
     
-    private func waitForDownloadCompletion(_ url: URL) throws {
-        print("Waiting for download to complete.")
+    private func waitForDownloadCompletion(_ url: URL) async throws -> URL {
+        guard url.pathExtension == "download" else {
+            return url
+        }
+        
+        try guardFileExists(url: url)
+        
+        print("Waiting for download to complete...")
         
         let queue = DispatchQueue(label: "download-watcher")
         let descriptor = open(url.path, O_EVTONLY)
@@ -34,77 +71,93 @@ struct InstallCommand: ParsableCommand {
             queue: queue
         )
         
-        let group = DispatchGroup()
-        group.enter()
-        deleteObserver.setEventHandler {
-            group.leave()
+        await withCheckedContinuation { continuation in
+            deleteObserver.setEventHandler {
+                continuation.resume()
+            }
+            deleteObserver.resume()
         }
         
-        deleteObserver.resume()
-        group.wait()
-        
-        try installXip(url.deletingPathExtension())
+        return url.deletingPathExtension()
     }
     
-    private func installXip(_ url: URL) throws {
+    private func expandXip(_ url: URL, for destination: URL) async throws -> URL {
+        let unxipState = Self.signposter.beginInterval("expand")
+        defer { Self.signposter.endInterval("expand", unxipState) }
+        
         guard url.pathExtension == "xip" else {
             throw ValidationError("Unable to handle file with extension \"\(fileURL.pathExtension)\"")
         }
         
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            throw ValidationError("File doesn't exist at \"\(fileURL.pathExtension)\"")
-        }
-        
-        let destinationDirectoryURL = try FileManager.default
-            .url(for: .applicationDirectory,
-                 in: .localDomainMask,
-                 appropriateFor: nil,
-                 create: false)
+        try guardFileExists(url: url)
         
         let tempFolder = try FileManager.default
-            .url(for: .itemReplacementDirectory,
-                 in: .userDomainMask,
-                 appropriateFor: destinationDirectoryURL,
-                 create: true)
+            .url(
+                for: .itemReplacementDirectory,
+                in: .userDomainMask,
+                appropriateFor: destination,
+                create: true
+            )
         
-        FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
+        Self.logger.debug("Temp Location: \(tempFolder.path, privacy: .public)")
         
-        print("Expanding \(url.lastPathComponent), this will definitely take a while.")
+        print("Expanding \(url.lastPathComponent)... (this will take a while)")
         
-        try Process.execute("/usr/bin/xip", arguments: [
-            "--expand",
-            url.path,
-        ])
+        if useUnxip {
+            try await XIPFile(url: url).expand(to: tempFolder)
+        } else {
+            FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
+            
+            try Process.execute(
+                "/usr/bin/xip",
+                arguments: [
+                    "--expand",
+                    url.path,
+                ]
+            )
+        }
         
-        // Useful for testing so you don't have to wait for the xip to expand. Comment out the above line.
-//        try FileManager.default
-//            .createDirectory(at: tempFolder.appendingPathComponent("Xcode.app"),
-//                             withIntermediateDirectories: false,
-//                             attributes: nil)
+        let expandedApplication = try FileManager.default
+            .contentsOfDirectory(
+                at: tempFolder,
+                includingPropertiesForKeys: nil,
+                options: .skipsSubdirectoryDescendants
+            )
+            .first { $0.lastPathComponent.contains("Xcode") }
         
-        let contents = try FileManager.default
-            .contentsOfDirectory(at: tempFolder,
-                                 includingPropertiesForKeys: nil,
-                                 options: .skipsSubdirectoryDescendants)
-        
-        guard let expandedApplication = contents.first(where: { $0.lastPathComponent.contains("Xcode") }) else {
+        guard let expandedApplication else {
             throw CustomError("Could not find an Xcode application after expanding the xip.")
         }
         
-        print("Verifying")
+        return expandedApplication
+    }
+    
+    private func installXcode(_ url: URL, to destination: URL) async throws {
+        let verifyingState = Self.signposter.beginInterval("verifying")
+        defer { Self.signposter.endInterval("verifying", verifyingState) }
         
-        let xcodeApplication = try XcodeApplication(url: expandedApplication)
+        print("Verifying...")
+        
+        let xcodeApplication = try XcodeApplication(url: url)
         let xcodeFileName = XcodeFileNameFormatter().string(from: xcodeApplication)
                 
-        let destinationURL = destinationDirectoryURL
+        let destinationURL = destination
             .appendingPathComponent(xcodeFileName)
-            .appendingPathExtension(expandedApplication.pathExtension)
+            .appendingPathExtension(url.pathExtension)
         
-        print("Moving Xcode to \(destinationURL.path) \(Date())")
+        print("Moving Xcode to \(destinationURL.path)...")
         
         try FileManager.default
-            .moveItem(at: expandedApplication,
-                      to: destinationURL)
+            .moveItem(
+                at: url,
+                to: destinationURL
+            )
+    }
+    
+    private func guardFileExists(url: URL) throws {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw ValidationError("File doesn't exist at \"\(url.path)\"")
+        }
     }
 }
 

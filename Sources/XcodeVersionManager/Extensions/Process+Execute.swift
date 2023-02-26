@@ -17,7 +17,7 @@ extension Process {
     
     private static let logger = Logger(
         subsystem: Bundle.main.executableURL!.lastPathComponent,
-        category: "Process"
+        category: "process"
     )
     
     @discardableResult
@@ -37,7 +37,7 @@ extension Process {
         try process.run()
         process.waitUntilExit()
         
-        if process.terminationStatus != 0 {
+        guard process.terminationStatus == 0 else {
             let errorData = standardError.fileHandleForReading.readDataToEndOfFile()
                         
             throw FailureError(

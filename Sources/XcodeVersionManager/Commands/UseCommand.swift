@@ -16,12 +16,12 @@ struct UseCommand: AsyncParsableCommand {
     var version: String
     
     func run() async throws {
-        let firstXcode = try await XcodeApplication
+        let xcode = try await XcodeApplication
             .all()
             .sorted(by: >)
             .first { $0.versionNumber.hasPrefix(version) }
         
-        guard let xcode = firstXcode else {
+        guard let xcode else {
             throw CustomError("No version of Xcode found matching \"\(version)\"")
         }
         

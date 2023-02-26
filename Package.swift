@@ -31,7 +31,8 @@ let package = Package(
             name: "XcodeVersionManager",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .target(name: "TableKit")
+                .target(name: "TableKit"),
+                .target(name: "Unxip")
             ]
         ),
         
@@ -42,5 +43,6 @@ let package = Package(
             name: "TableKitTests",
             dependencies: ["TableKit"]
         ),
+        .target(name: "Unxip")
     ]
 )

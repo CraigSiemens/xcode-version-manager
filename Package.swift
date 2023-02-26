@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "xcode-version-manager",
-    platforms: [.macOS(.v11)],
+    platforms: [.macOS(.v12)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .executable(

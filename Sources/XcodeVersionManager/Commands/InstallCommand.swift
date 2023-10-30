@@ -25,14 +25,14 @@ struct InstallCommand: AsyncParsableCommand {
     
     @Flag(
         help: .init(
-            "Expand the xip file faster by using unxip.",
+            "Expand the xip file using the system xip command.",
             discussion: """
-            Instead of using the `xip` command for expanding the file, it uses `unxip` which is an open source implementation of expanding xip files.
+            By default `unxip` is used for expanding the file, which is a faster,  open source implementation of expanding xip files. If `unxip` fails to expand the file, enabling this option will use the system `xip` command for expanding the xip file.
             Source: https://github.com/saagarjha/unxip
             """
         )
     )
-    var useUnxip = false
+    var useXip = false
     
     func run() async throws {
         let destinationDirectoryURL = try FileManager.default
@@ -103,8 +103,8 @@ struct InstallCommand: AsyncParsableCommand {
         
         print("Expanding \(url.lastPathComponent)... (this will take a while)")
         FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
-        
-        if useUnxip {
+            
+        if !useXip {
             try await XIPFile(url: url).expand()
         } else {
             try Process.execute(

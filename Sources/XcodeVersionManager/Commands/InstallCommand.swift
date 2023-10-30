@@ -102,12 +102,11 @@ struct InstallCommand: AsyncParsableCommand {
         Self.logger.debug("Temp Location: \(tempFolder.path, privacy: .public)")
         
         print("Expanding \(url.lastPathComponent)... (this will take a while)")
+        FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
         
         if useUnxip {
-            try await XIPFile(url: url).expand(to: tempFolder)
+            try await XIPFile(url: url).expand()
         } else {
-            FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
-            
             try Process.execute(
                 "/usr/bin/xip",
                 arguments: [

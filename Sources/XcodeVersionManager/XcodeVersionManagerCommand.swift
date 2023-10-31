@@ -8,6 +8,7 @@ struct XcodeVersionManagerCommand: AsyncParsableCommand {
         abstract: "Manage multiple installed versions of Xcode.",
         version: version,
         subcommands: [
+            DownloadCommand.self,
             ListCommand.self,
             InstallCommand.self,
             UninstallCommand.self,

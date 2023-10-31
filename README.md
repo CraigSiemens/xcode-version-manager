@@ -19,6 +19,7 @@ OPTIONS:
   -h, --help              Show help information.
 
 SUBCOMMANDS:
+  download                Changes the version of Xcode being used.
   list (default)          Lists the installed versions of Xcode.
   install                 Installs a version of Xcode from a downloaded xip
                           file.

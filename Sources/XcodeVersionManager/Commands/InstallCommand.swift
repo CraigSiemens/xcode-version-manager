@@ -34,11 +34,16 @@ struct InstallCommand: AsyncParsableCommand {
     )
     var useXip = false
     
+    @Flag(
+        help: .init("The install location for Xcode.")
+    )
+    var installLocation: InstallLocation = .applications
+    
     func run() async throws {
         let destinationDirectoryURL = try FileManager.default
             .url(
                 for: .applicationDirectory,
-                in: .localDomainMask,
+                in: installLocation.domainMask,
                 appropriateFor: nil,
                 create: false
             )
@@ -139,7 +144,9 @@ struct InstallCommand: AsyncParsableCommand {
         
         let xcodeApplication = try XcodeApplication(url: url)
         let xcodeFileName = XcodeFileNameFormatter().string(from: xcodeApplication)
-                
+        
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        
         let destinationURL = destination
             .appendingPathComponent(xcodeFileName)
             .appendingPathExtension(url.pathExtension)
@@ -164,5 +171,21 @@ extension URL: ExpressibleByArgument {
     public init?(argument: String) {
         let currentDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         self.init(fileURLWithPath: argument, relativeTo: currentDirectory)
+    }
+}
+
+extension InstallCommand {
+    enum InstallLocation: EnumerableFlag {
+        case applications
+        case userApplications
+        
+        var domainMask: FileManager.SearchPathDomainMask {
+            switch self {
+            case .applications:
+                return .localDomainMask
+            case .userApplications:
+                return .userDomainMask
+            }
+        }
     }
 }

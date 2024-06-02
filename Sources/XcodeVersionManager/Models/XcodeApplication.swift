@@ -109,10 +109,17 @@ extension XcodeApplication {
 // MARK: All
 extension XcodeApplication {
     static func all() async throws -> [XcodeApplication] {
-        let urls = LSCopyApplicationURLsForBundleIdentifier("com.apple.dt.Xcode" as CFString, nil)?
-            .takeUnretainedValue()
-            as? [URL]
-            ?? []
+        let data = try Process.execute(
+            "/usr/bin/mdfind",
+            arguments: [
+                "kMDItemCFBundleIdentifier = 'com.apple.dt.Xcode'"
+            ]
+        )
+        
+        let urls = String(decoding: data, as: UTF8.self)
+            .components(separatedBy: .newlines)
+            .filter { !$0.isEmpty }
+            .map { URL(fileURLWithPath: $0, isDirectory: true) }
         
         return try await withThrowingTaskGroup(of: XcodeApplication.self) { group in
             for url in urls {

@@ -22,7 +22,17 @@ extension Process {
     
     @discardableResult
     static func execute(_ command: String, arguments: [String]) throws -> Data {
-        logger.debug("\(command, privacy: .public) \(arguments.joined(separator: " "), privacy: .public)")
+        let formattedArguments = arguments
+            .map { argument in
+                if argument.contains(where: \.isWhitespace) {
+                    "'\(argument)'"
+                } else {
+                    argument
+                }
+            }
+            .joined(separator: " ")
+        
+        logger.debug("\(command, privacy: .public) \(formattedArguments, privacy: .public)")
         
         let process = Process()
         process.launchPath = command

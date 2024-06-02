@@ -12,12 +12,16 @@ struct TableRenderer {
                 result.merge(row) { max($0, $1) }
             }
         
-        var orderedWidths = data.columnKeys.map { columnWidths[$0] ?? $0.count }
+        var orderedColumnWidths = data.columnKeys.map { key in
+            let keyWidth = key.count + style.paddingSize * 2
+            return max(keyWidth, columnWidths[key, default: 0])
+        }
+        
         if style.showRowKeys {
             let leadingColumnWidth = (data.rowKeys.map { $0.count }.max() ?? 0)
                 + style.paddingSize * 2
             
-            orderedWidths.insert(leadingColumnWidth, at: 0)
+            orderedColumnWidths.insert(leadingColumnWidth, at: 0)
         }
         
         var output: String = ""
@@ -37,7 +41,7 @@ struct TableRenderer {
             
             lineContent += leading
             
-            lineContent += orderedWidths
+            lineContent += orderedColumnWidths
                 .map { String(repeating: line, count: $0) }
                 .joined(separator: join)
             
@@ -53,7 +57,7 @@ struct TableRenderer {
             
             lineContent += leading + padding
             
-            lineContent += zip(values, orderedWidths)
+            lineContent += zip(values, orderedColumnWidths)
                 .map { $0.0.padding(toLength: $0.1 - style.paddingSize * 2, withPad: " ", startingAt: 0) }
                 .joined(separator: padding + join + padding)
             

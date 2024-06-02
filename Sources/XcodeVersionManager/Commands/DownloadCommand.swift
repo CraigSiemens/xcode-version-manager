@@ -5,7 +5,7 @@ import Cocoa
 struct DownloadCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "download",
-        abstract: "Changes the version of Xcode being used."
+        abstract: "Open the browser to download a version of Xcode."
     )
     
     @Argument(

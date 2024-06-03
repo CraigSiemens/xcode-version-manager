@@ -8,31 +8,15 @@
 import Foundation
 
 class XcodeReleases {
-    private static let cacheURL = FileManager.default
-        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("xcvm")
-        .appendingPathComponent("releases.json")
-    
     var releases: [XcodeRelease] = []
     
-    func loadCached() throws {
-        guard releases.isEmpty else { return }
-        
-        let data = try Data(contentsOf: Self.cacheURL)
-        releases = try JSONDecoder().decode([XcodeRelease].self, from: data)
-    }
-    
-    func loadRemote() async throws {
+    init() async throws {
         let (data, _) = try await URLSession.shared.data(from: URL(string: "https://xcodereleases.com/data.json")!)
         
         releases = try JSONDecoder()
             .decode([XcodeReleaseResponse].self, from: data)
             .prefix(100)
             .compactMap(XcodeRelease.init(response:))
-        
-        try JSONEncoder()
-            .encode(releases)
-            .write(to: Self.cacheURL)
     }
 }
 

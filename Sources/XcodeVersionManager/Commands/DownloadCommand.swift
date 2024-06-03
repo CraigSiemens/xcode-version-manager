@@ -14,11 +14,16 @@ struct DownloadCommand: AsyncParsableCommand {
             discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the newest matching version of Xcode is used."
         ),
         completion: .custom { _ in
-            let releases = XcodeReleases()
             do {
-                try releases.loadCached()
-                let numbers = Set(releases.releases.map(\.version.number))
-                return ["latest"] + numbers.sorted(by: >)
+                struct EmptyResponse: Error {}
+                
+                let versionNumbers = try _unsafeWait {
+                    let releases = try await XcodeReleases().releases
+                    guard !releases.isEmpty else { throw EmptyResponse() }
+                    return releases.map(\.version.number)
+                }
+                
+                return ["latest"] + Set(versionNumbers).sorted(by: >)
             } catch {
                 return []
             }
@@ -27,8 +32,7 @@ struct DownloadCommand: AsyncParsableCommand {
     var version: String = "latest"
     
     func run() async throws {
-        let releases = XcodeReleases()
-        try await releases.loadRemote()
+        let releases = try await XcodeReleases()
         
         let matchingRelease: XcodeRelease?
         if version == "latest" {
@@ -48,4 +52,25 @@ struct DownloadCommand: AsyncParsableCommand {
         
         NSWorkspace.shared.open(downloadComponents.url!)
     }
+}
+
+private class Box<ResultType> {
+    var result: Result<ResultType, Error>? = nil
+}
+
+/// Unsafely awaits an async function from a synchronous context.
+func _unsafeWait<ResultType>(_ task: @escaping () async throws -> ResultType) throws -> ResultType {
+    let box = Box<ResultType>()
+    let semaphore = DispatchSemaphore(value: 0)
+    Task {
+        do {
+            let value = try await task()
+            box.result = .success(value)
+        } catch {
+            box.result = .failure(error)
+        }
+        semaphore.signal()
+    }
+    semaphore.wait()
+    return try box.result!.get()
 }

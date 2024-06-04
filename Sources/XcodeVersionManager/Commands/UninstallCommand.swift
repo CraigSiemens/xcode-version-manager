@@ -8,6 +8,12 @@ struct UninstallCommand: AsyncParsableCommand {
     )
     
     @Flag(
+        name: .shortAndLong,
+        help: .init("Uninstall the matched version of Xcode without prompting for confirmation.")
+    )
+    var force: Bool = false
+    
+    @Flag(
         help: .init("Controls how the passed version is matches to an install of Xcode.")
     )
     var versionMatch: VersionMatch = .exact
@@ -53,7 +59,9 @@ struct UninstallCommand: AsyncParsableCommand {
             throw CustomError("No version of Xcode found matching \"\(version)\"")
         }
         
-        guard askConfirmation("Are you sure you want to uninstall \(xcode.url.lastPathComponent)?") else {
+        guard force || askConfirmation(
+            "Are you sure you want to uninstall \(xcode.url.lastPathComponent)?"
+        ) else {
             return
         }
         

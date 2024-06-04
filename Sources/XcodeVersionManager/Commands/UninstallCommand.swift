@@ -9,17 +9,35 @@ struct UninstallCommand: AsyncParsableCommand {
     
     @Argument(
         help: ArgumentHelp(
-            "The version number of Xcode to uninstall.",
-            discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the oldest matching version of Xcode is used."
-        )
+            "The version number of Xcode to uninstall."
+        ),
+        completion: .custom { words in
+            do {
+                return try _unsafeWait {
+                    var formatter = XcodeVersionFormatter()
+                    formatter.separator = "-"
+                    
+                    return try await XcodeApplication
+                        .all()
+                        .map(formatter.string)
+                }
+            } catch {
+                return []
+            }
+        }
     )
     var version: String
     
     func run() async throws {
+        var formatter = XcodeVersionFormatter()
+        formatter.separator = "-"
+        
         let xcode = try await XcodeApplication
             .all()
             .sorted(by: <)
-            .first { $0.versionNumber.hasPrefix(version) }
+            .first {
+                formatter.string(from: $0) == version
+            }
         
         guard let xcode else {
             throw CustomError("No version of Xcode found matching \"\(version)\"")

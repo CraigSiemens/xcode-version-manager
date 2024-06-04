@@ -7,6 +7,11 @@ struct UninstallCommand: AsyncParsableCommand {
         abstract: "Uninstalls a version of Xcode."
     )
     
+    @Flag(
+        help: .init("Controls how the passed version is matches to an install of Xcode.")
+    )
+    var versionMatch: VersionMatch = .exact
+    
     @Argument(
         help: ArgumentHelp(
             "The version number of Xcode to uninstall."
@@ -34,9 +39,14 @@ struct UninstallCommand: AsyncParsableCommand {
         
         let xcode = try await XcodeApplication
             .all()
-            .sorted(by: <)
+            .sorted(by: versionMatch.order)
             .first {
-                formatter.string(from: $0) == version
+                let formattedVersion = formatter.string(from: $0)
+                if versionMatch.isPrefix {
+                    return formattedVersion.hasPrefix(version)
+                } else {
+                    return formatter.string(from: $0) == version
+                }
             }
         
         guard let xcode else {
@@ -48,5 +58,31 @@ struct UninstallCommand: AsyncParsableCommand {
         }
         
         try FileManager.default.removeItem(at: xcode.url)
+    }
+}
+
+extension UninstallCommand {
+    enum VersionMatch: EnumerableFlag {
+        case exact
+        case oldestWithPrefix
+        case newestWithPrefix
+        
+        var isPrefix: Bool {
+            switch self {
+            case .exact: 
+                false
+            case .oldestWithPrefix, .newestWithPrefix:
+                true
+            }
+        }
+        
+        func order(lhs: XcodeApplication, rhs: XcodeApplication) throws -> Bool {
+            switch self {
+            case .exact, .oldestWithPrefix:
+                lhs < rhs
+            case .newestWithPrefix:
+                lhs > rhs
+            }
+        }
     }
 }

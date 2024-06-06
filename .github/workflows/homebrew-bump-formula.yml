@@ -6,11 +6,10 @@ on:
 
 jobs:
   homebrew:
-    name: Bump Homebrew Formula
     runs-on: ubuntu-latest
     steps:
       - uses: dawidd6/action-homebrew-bump-formula@v3
         with:
-          token: ${{secrets.HOMEBREW_BUMP_FORMULA_TOKEN}}
+          token: ${{ secrets.HOMEBREW_BUMP_FORMULA_TOKEN }}
           tap: CraigSiemens/homebrew-tap
           formula: xcode-version-manager

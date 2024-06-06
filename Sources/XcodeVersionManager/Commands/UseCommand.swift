@@ -13,23 +13,10 @@ struct UseCommand: AsyncParsableCommand {
     @Flag(help: "How to provide superuser permissions to xcode-select.")
     var xcodeSelectPermissions: XcodeApplication.XcodeSelectPermissions = .inherit
     
-    @Argument(
-        help: ArgumentHelp(
-            "The version number to use.",
-            discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the newest matching version of Xcode is used."
-        )
-    )
-    var version: String
+    @OptionGroup var xcodeVersion: InstalledXcodeVersion
     
     func run() async throws {
-        let xcode = try await XcodeApplication
-            .all()
-            .sorted(by: >)
-            .first { $0.versionNumber.hasPrefix(version) }
-        
-        guard let xcode else {
-            throw CustomError("No version of Xcode found matching \"\(version)\"")
-        }
+        let xcode = try await xcodeVersion.xcodeApplication()
         
         let formatter = XcodeVersionFormatter()
         let xcodeVersion = formatter.string(from: xcode)

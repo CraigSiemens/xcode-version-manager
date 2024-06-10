@@ -24,7 +24,7 @@ struct InstallCommand: AsyncParsableCommand {
         ),
         completion: CompletionKind.file(extensions: ["xip", "download", "crdownload"])
     )
-    var fileURL: URL
+    var fileURL: URLArgument
     
     @Flag(
         help: .init(
@@ -51,7 +51,7 @@ struct InstallCommand: AsyncParsableCommand {
                 create: false
             )
         
-        var fileURL = fileURL
+        var fileURL = fileURL.url
         
         if fileURL.pathExtension.hasSuffix("download") {
             fileURL = try await waitForDownloadCompletion(fileURL)
@@ -94,7 +94,7 @@ struct InstallCommand: AsyncParsableCommand {
         defer { Self.signposter.endInterval("expand", unxipState) }
         
         guard url.pathExtension == "xip" else {
-            throw ValidationError("Unable to handle file with extension \"\(fileURL.pathExtension)\"")
+            throw ValidationError("Unable to handle file with extension \"\(fileURL.url.pathExtension)\"")
         }
         
         try guardFileExists(url: url)
@@ -167,13 +167,6 @@ struct InstallCommand: AsyncParsableCommand {
         guard FileManager.default.fileExists(atPath: url.path) else {
             throw ValidationError("File doesn't exist at \"\(url.path)\"")
         }
-    }
-}
-
-extension URL: ExpressibleByArgument {
-    public init?(argument: String) {
-        let currentDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-        self.init(fileURLWithPath: argument, relativeTo: currentDirectory)
     }
 }
 

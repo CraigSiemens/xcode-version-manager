@@ -9,10 +9,11 @@ struct BetaVersionNumberCommand: ParsableCommand {
     )
     
     @Argument(help: "The path to the Xcode app")
-    var xcodeURL: URL
+    var xcodeURL: URLArgument
     
     func run() throws {
         let dvtFoundationURL = xcodeURL
+            .url
             .appendingPathComponent("Contents/SharedFrameworks/DVTFoundation.framework/DVTFoundation")
         
         guard FileManager.default.fileExists(atPath: dvtFoundationURL.path) else {

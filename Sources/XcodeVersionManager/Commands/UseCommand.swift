@@ -34,17 +34,22 @@ extension XcodeApplication.XcodeSelectPermissions: EnumerableFlag {
     static func help(for value: Self) -> ArgumentHelp? {
         switch value {
         case .inherit:
-            #"xcode-select will be run with same permissions xcvm has. Calling "sudo xcvm ..." may be required if you do not already have superuser permissions."#
+            ArgumentHelp(
+                "xcode-select will be run with same permissions xcvm has.",
+                discussion: #"Calling "sudo xcvm ..." may be required if you do not already have superuser permissions."#
+            )
             
         case .sudoAskpass:
-                #"""
-                xcvm will call xcode-select with "sudo --askpass ...". The behaviour will be based on the system config.
+            ArgumentHelp(
+                #"xcvm will call xcode-select with "sudo --askpass ..."."#,
+                discussion: """
+                The behaviour will be based on the system config.
                   1. If xcode-select has been added to sudoers with NOPASSWD, it won't need to prompt the user.
                   2. If sudo has been configured to allow Touch ID, a prompt will be shown. See /etc/pam.d/sudo_local.template.
                   3. If sudo requires a password, it will call the helper program specified by the SUDO_ASKPASS environment variable.
                 See `man sudo` for more details.
-                
-                """#
+                """
+            )
         }
     }
 }

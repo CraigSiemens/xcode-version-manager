@@ -4,8 +4,6 @@ BINARY=$(shell swift build $(SWIFT_BUILD_FLAGS) --show-bin-path)/$(NAME)
 COMPLETIONS_DIR=.build/completions
 MAIN_BRANCH=main
 
-BINARIES_FOLDER=/usr/local/bin
-
 .PHONY: all clean build completions readme push-version
 
 all: build
@@ -23,7 +21,7 @@ completions: build
 	"$(BINARY)" --generate-completion-script fish > "$(COMPLETIONS_DIR)/fish"
 
 readme: build
-	perl -i -0pe "s/## Details\n\`\`\`(.|\n)*?\`\`\`/## Details\n\`\`\`\n$$("$(BINARY)" help)\n\`\`\`/g" README.md
+	perl -i -0pe "s/## \`xcvm help\`\n\`\`\`(.|\n)*?\`\`\`/## \`xcvm help\`\n\`\`\`\n$$("$(BINARY)" help)\n\`\`\`/g" README.md
 
 push-version:
 ifneq ($(strip $(shell git status --untracked-files=no --porcelain 2>/dev/null)),)

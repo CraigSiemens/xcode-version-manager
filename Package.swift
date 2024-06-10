@@ -20,8 +20,8 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(
-            url: "https://github.com/apple/swift-argument-parser",
-            from: "1.1.4"
+            url: "https://github.com/craigsiemens/swift-argument-parser",
+            branch: "zsh-completion-option-group-646"
         ),
         .package(
             url: "https://github.com/saagarjha/unxip",

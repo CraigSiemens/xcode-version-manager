@@ -3,10 +3,10 @@
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser",
+      "location" : "https://github.com/craigsiemens/swift-argument-parser",
       "state" : {
-        "revision" : "0fbc8848e389af3bb55c182bc19ca9d5dc2f255b",
-        "version" : "1.4.0"
+        "branch" : "zsh-completion-option-group-646",
+        "revision" : "790feb26c99e0c89580be38f8b103344eabc226e"
       }
     },
     {

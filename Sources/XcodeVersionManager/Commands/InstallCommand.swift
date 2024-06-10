@@ -18,8 +18,11 @@ struct InstallCommand: AsyncParsableCommand {
     private static let signposter = OSSignposter(logger: logger)
     
     @Argument(
-        help: "The path to the xip or download file to install.",
-        completion: CompletionKind.file(extensions: ["xip", "download"])
+        help: .init(
+            "The path to the xip or download file to install.",
+            discussion: "Browsers created a file when the download is in progress. Safari uses the extension .download and Chrome uses .crdownload. When passed a download file, it will wait for the download to complete before installing Xcode."
+        ),
+        completion: CompletionKind.file(extensions: ["xip", "download", "crdownload"])
     )
     var fileURL: URL
     
@@ -50,7 +53,7 @@ struct InstallCommand: AsyncParsableCommand {
         
         var fileURL = fileURL
         
-        if fileURL.pathExtension == "download" {
+        if fileURL.pathExtension.hasSuffix("download") {
             fileURL = try await waitForDownloadCompletion(fileURL)
         }
         

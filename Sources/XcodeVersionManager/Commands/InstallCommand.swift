@@ -16,13 +16,15 @@ struct InstallCommand: AsyncParsableCommand {
     )
     
     private static let signposter = OSSignposter(logger: logger)
+    private static let xipExtension = "xip"
+    private static let downloadExtensions = ["download", "crdownload"]
     
     @Argument(
         help: .init(
             "The path to the xip or download file to install.",
             discussion: "Browsers created a file when the download is in progress. Safari uses the extension .download and Chrome uses .crdownload. When passed a download file, it will wait for the download to complete before installing Xcode."
         ),
-        completion: CompletionKind.file(extensions: ["xip", "download", "crdownload"])
+        completion: CompletionKind.file(extensions: [xipExtension] + downloadExtensions)
     )
     var fileURL: URLArgument
     
@@ -52,18 +54,14 @@ struct InstallCommand: AsyncParsableCommand {
             )
         
         var fileURL = fileURL.url
-        
-        if fileURL.pathExtension.hasSuffix("download") {
-            fileURL = try await waitForDownloadCompletion(fileURL)
-        }
-        
+        fileURL = try await waitForDownloadIfNeeded(fileURL)
         fileURL = try await expandXip(fileURL, for: destinationDirectoryURL)
         
         try await installXcode(fileURL, to: destinationDirectoryURL)
     }
     
-    private func waitForDownloadCompletion(_ url: URL) async throws -> URL {
-        guard url.pathExtension == "download" else {
+    private func waitForDownloadIfNeeded(_ url: URL) async throws -> URL {
+        guard Self.downloadExtensions.contains(url.pathExtension) else {
             return url
         }
         
@@ -93,7 +91,7 @@ struct InstallCommand: AsyncParsableCommand {
         let unxipState = Self.signposter.beginInterval("expand")
         defer { Self.signposter.endInterval("expand", unxipState) }
         
-        guard url.pathExtension == "xip" else {
+        guard url.pathExtension == Self.xipExtension else {
             throw ValidationError("Unable to handle file with extension \"\(fileURL.url.pathExtension)\"")
         }
         

@@ -20,9 +20,7 @@ struct UninstallCommand: AsyncParsableCommand {
         
         guard force || askConfirmation(
             "Are you sure you want to uninstall \(xcode.url.lastPathComponent)?"
-        ) else {
-            return
-        }
+        ) else { return }
         
         try FileManager.default.removeItem(at: xcode.url)
     }

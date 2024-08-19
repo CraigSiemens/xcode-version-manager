@@ -8,6 +8,12 @@ struct DownloadCommand: AsyncParsableCommand {
         abstract: "Open the browser to download a version of Xcode."
     )
     
+    @Flag(
+        name: .shortAndLong,
+        help: .init("Download the matched version of Xcode without prompting for confirmation.")
+    )
+    var force: Bool = false
+    
     @Argument(
         help: ArgumentHelp(
             "The version number to download.",
@@ -20,7 +26,7 @@ struct DownloadCommand: AsyncParsableCommand {
                 let versionNumbers = try _unsafeWait {
                     let releases = try await XcodeReleases().releases
                     guard !releases.isEmpty else { throw EmptyResponse() }
-                    return releases.map(\.version.number)
+                    return releases.map { $0.version.formatted(style: .option) }
                 }
                 
                 return ["latest"] + Set(versionNumbers).sorted(by: >)
@@ -38,12 +44,17 @@ struct DownloadCommand: AsyncParsableCommand {
         if version == "latest" {
             matchingRelease = releases.releases.first
         } else {
-            matchingRelease = releases.releases.first { $0.version.number.hasPrefix(version) }
+            matchingRelease = releases.releases
+                .first { $0.version.formatted(style: .option).hasPrefix(version) }
         }
         
         guard let matchingRelease else {
             throw CustomError("No Xcode release found matching version '\(version)'")
         }
+        
+        guard force || askConfirmation(
+            "Download Xcode \(matchingRelease.version.formatted())?"
+        ) else { return }
         
         var downloadComponents = URLComponents(string: "https://developer.apple.com/services-account/download")!
         downloadComponents.queryItems = [

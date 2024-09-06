@@ -53,8 +53,11 @@ struct DownloadCommand: AsyncParsableCommand {
         }
         
         guard force || askConfirmation(
-            "Download Xcode \(matchingRelease.version.formatted())?"
+            "Download Xcode \(matchingRelease.version.formatted())?",
+            default: .yes
         ) else { return }
+        
+        print("Opening browser to download \(matchingRelease.version.formatted())")
         
         var downloadComponents = URLComponents(string: "https://developer.apple.com/services-account/download")!
         downloadComponents.queryItems = [

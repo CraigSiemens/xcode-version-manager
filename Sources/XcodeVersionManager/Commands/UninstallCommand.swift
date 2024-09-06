@@ -19,9 +19,11 @@ struct UninstallCommand: AsyncParsableCommand {
         let xcode = try await xcodeVersion.xcodeApplication()
         
         guard force || askConfirmation(
-            "Are you sure you want to uninstall \(xcode.url.lastPathComponent)?"
+            "Are you sure you want to uninstall \(xcode.url.lastPathComponent)?",
+            default: .no
         ) else { return }
         
+        print("Uninstalling \(xcode.url.lastPathComponent)...")
         try FileManager.default.removeItem(at: xcode.url)
     }
 }

@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import Unxip
+import libunxip
 import os
 
 struct InstallCommand: AsyncParsableCommand {
@@ -111,7 +111,10 @@ struct InstallCommand: AsyncParsableCommand {
         FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
             
         if !useXip {
-            try await XIPFile(url: url).expand()
+            let handle = try FileHandle(forReadingFrom: url)
+            let data = DataReader(descriptor: handle.fileDescriptor)
+            
+            for try await _ in Unxip.makeStream(from: .xip(input: data), to: .disk, input: data) {}
         } else {
             try Process.execute(
                 "/usr/bin/xip",

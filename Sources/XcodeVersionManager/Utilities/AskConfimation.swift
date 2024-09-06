@@ -2,12 +2,11 @@ import Foundation
 
 func askConfirmation(_ question: String, default defaultOption: AskConfirmationOption) -> Bool {
     let yes = defaultOption == .yes ? "Y" : "y"
-    let no = defaultOption == .no ? "n" : "N"
+    let no = defaultOption == .no ? "N" : "n"
     
     print("\(question) [\(yes)/\(no)]")
     
-    guard let line = readLine(strippingNewline: true)
-    else { return false }
+    guard let line = readLine(strippingNewline: true) else { return false }
     
     switch line.count {
     case 0:

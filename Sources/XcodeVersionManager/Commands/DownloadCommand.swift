@@ -52,12 +52,13 @@ struct DownloadCommand: AsyncParsableCommand {
             throw CustomError("No Xcode release found matching version '\(version)'")
         }
         
+        let xcodeName = "Xcode \(matchingRelease.version.formatted())"
         guard force || askConfirmation(
-            "Download Xcode \(matchingRelease.version.formatted())?",
+            "Download \(xcodeName)?",
             default: .yes
         ) else { return }
         
-        print("Opening browser to download \(matchingRelease.version.formatted())")
+        print("Opening browser to download \(xcodeName)")
         
         var downloadComponents = URLComponents(string: "https://developer.apple.com/services-account/download")!
         downloadComponents.queryItems = [

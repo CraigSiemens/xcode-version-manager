@@ -3,7 +3,7 @@ import Foundation
 
 @main
 struct XcodeVersionManagerCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "xcvm",
         abstract: "Manage multiple installed versions of Xcode.",
         version: version,

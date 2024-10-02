@@ -1,11 +1,11 @@
-// swift-tools-version:5.7
+// swift-tools-version:6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "xcode-version-manager",
-    platforms: [.macOS(.v12)],
+    platforms: [.macOS(.v14)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .executable(
@@ -25,7 +25,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/saagarjha/unxip",
-            from: "3.0.0"
+            branch: "main"
         ),
     ],
     targets: [

@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 struct UninstallCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "uninstall",
         abstract: "Uninstalls a version of Xcode."
     )

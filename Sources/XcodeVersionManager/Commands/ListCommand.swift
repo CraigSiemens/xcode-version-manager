@@ -3,7 +3,7 @@ import Foundation
 import TableKit
 
 struct ListCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Lists the installed versions of Xcode."
     )

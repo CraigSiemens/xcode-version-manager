@@ -3,7 +3,7 @@ import Foundation
 import Cocoa
 
 struct DownloadCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "download",
         abstract: "Open the browser to download a version of Xcode."
     )

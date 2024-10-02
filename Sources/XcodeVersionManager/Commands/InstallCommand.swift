@@ -4,7 +4,7 @@ import libunxip
 import os
 
 struct InstallCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "install",
         abstract: "Installs a version of Xcode from a downloaded xip file.",
         discussion: "Can wait for the download of a xip to complete before installing it. Expanding a xip can take a long amount of time to complete and it isn't possible to show progress."
@@ -107,14 +107,14 @@ struct InstallCommand: AsyncParsableCommand {
         
         Self.logger.debug("Temp Location: \(tempFolder.path, privacy: .public)")
         
-        print("Expanding \(url.lastPathComponent)... (this will take a while)")
+        print("Expanding \(url.lastPathComponent)...")
         FileManager.default.changeCurrentDirectoryPath(tempFolder.path)
-            
+        
         if !useXip {
             let handle = try FileHandle(forReadingFrom: url)
             let data = DataReader(descriptor: handle.fileDescriptor)
             
-            for try await _ in Unxip.makeStream(from: .xip(input: data), to: .disk, input: data) {}
+            for try await _ in Unxip.makeStream(from: .xip(input: data), to: .disk, input: .init(descriptor: handle.fileDescriptor)) {}
         } else {
             try Process.execute(
                 "/usr/bin/xip",

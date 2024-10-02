@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 struct UseCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "use",
         abstract: "Changes the version of Xcode being used.",
         discussion: """

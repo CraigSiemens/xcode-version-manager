@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 struct BetaVersionNumberCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "_beta-version-number",
         abstract: "Internal command to get the beta version number from an Xcode app.",
         shouldDisplay: false

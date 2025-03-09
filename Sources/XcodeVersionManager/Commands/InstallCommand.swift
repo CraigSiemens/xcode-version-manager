@@ -59,23 +59,40 @@ struct InstallCommand: AsyncParsableCommand {
         
         try await installXcode(fileURL, to: destinationDirectoryURL)
     }
-    
+}
+
+// MARK: - Wait for download
+extension InstallCommand {
     private func waitForDownloadIfNeeded(_ url: URL) async throws -> URL {
-        guard Self.downloadExtensions.contains(url.pathExtension) else {
+        try guardFileExists(url: url)
+        
+        if let url = try await waitForSafariDownloadIfNeeded(url) {
             return url
         }
         
-        try guardFileExists(url: url)
+        if let url = try await waitForChromeDownloadIfNeeded(url) {
+            return url
+        }
+        
+        return url
+    }
+    
+    private func waitForSafariDownloadIfNeeded(_ url: URL) async throws -> URL? {
+        guard url.pathExtension == "download" else { return nil }
         
         print("Waiting for download to complete...")
         
         let queue = DispatchQueue(label: "download-watcher")
+        
         let descriptor = open(url.path, O_EVTONLY)
+        defer { close(descriptor) }
+        
         let deleteObserver = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: descriptor,
             eventMask: .delete,
             queue: queue
         )
+        defer { deleteObserver.cancel() }
         
         await withCheckedContinuation { continuation in
             deleteObserver.setEventHandler {
@@ -87,6 +104,49 @@ struct InstallCommand: AsyncParsableCommand {
         return url.deletingPathExtension()
     }
     
+    private func waitForChromeDownloadIfNeeded(_ url: URL) async throws -> URL? {
+        guard url.pathExtension == "crdownload" else { return nil }
+        
+        print("Waiting for download to complete...")
+        
+        let queue = DispatchQueue(label: "download-watcher")
+        
+        let descriptor = open(url.path, O_EVTONLY)
+        defer { close(descriptor) }
+        
+        let renameObserver = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: descriptor,
+            eventMask: [.rename, .delete],
+            queue: queue
+        )
+        defer { renameObserver.cancel() }
+        
+        await withCheckedContinuation { continuation in
+            renameObserver.setEventHandler {
+                continuation.resume()
+            }
+            renameObserver.resume()
+        }
+        
+        var filePathData = Data(repeating: 0, count: Int(MAXPATHLEN))
+        let code = filePathData.withUnsafeMutableBytes {
+            fcntl(descriptor, F_GETPATH, $0.baseAddress!)
+        }
+        guard code == 0 else {
+            throw ExitCode(code)
+        }
+        
+        let filePath = String(
+            decoding: filePathData.prefix { $0 != 0 },
+            as: UTF8.self
+        )
+        
+        return URL(fileURLWithPath: filePath)
+    }
+}
+
+// MARK: - Expand
+extension InstallCommand {
     private func expandXip(_ url: URL, for destination: URL) async throws -> URL {
         let unxipState = Self.signposter.beginInterval("expand")
         defer { Self.signposter.endInterval("expand", unxipState) }
@@ -138,7 +198,10 @@ struct InstallCommand: AsyncParsableCommand {
         
         return expandedApplication
     }
-    
+}
+
+// MARK: - Install
+extension InstallCommand {
     private func installXcode(_ url: URL, to destination: URL) async throws {
         let verifyingState = Self.signposter.beginInterval("installing")
         defer { Self.signposter.endInterval("installing", verifyingState) }

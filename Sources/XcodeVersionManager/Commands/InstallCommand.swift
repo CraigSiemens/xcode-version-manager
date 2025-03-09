@@ -140,10 +140,10 @@ struct InstallCommand: AsyncParsableCommand {
     }
     
     private func installXcode(_ url: URL, to destination: URL) async throws {
-        let verifyingState = Self.signposter.beginInterval("verifying")
-        defer { Self.signposter.endInterval("verifying", verifyingState) }
+        let verifyingState = Self.signposter.beginInterval("installing")
+        defer { Self.signposter.endInterval("installing", verifyingState) }
         
-        print("Verifying...")
+        print("Reading version information...")
         
         let xcodeApplication = try XcodeApplication(url: url)
         let xcodeFileName = XcodeFileNameFormatter().string(from: xcodeApplication)

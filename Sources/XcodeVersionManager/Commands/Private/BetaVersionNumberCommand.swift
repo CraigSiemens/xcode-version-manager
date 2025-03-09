@@ -23,18 +23,23 @@ struct BetaVersionNumberCommand: ParsableCommand {
         let frameworkHandle = dlopen(dvtFoundationURL.path, RTLD_NOW)
         defer { dlclose(frameworkHandle) }
         
-        guard let toolsInfoClass: AnyObject = NSClassFromString("DVTToolsInfo") else {
-            return
-        }
+        let toolsInfoSelector = NSSelectorFromString("toolsInfo")
         
-        let toolsInfo = toolsInfoClass.perform(NSSelectorFromString("toolsInfo")).takeRetainedValue()
+        guard let toolsInfoClass: AnyObject = NSClassFromString("DVTToolsInfo"),
+              toolsInfoClass.responds(to: toolsInfoSelector)
+        else { return }
         
-        if toolsInfo.isBeta() {
-            print(toolsInfo.toolsBetaVersion())
-        }
+        let toolsInfo = toolsInfoClass.perform(toolsInfoSelector).takeRetainedValue()
+        
+        guard toolsInfo.responds(to: NSSelectorFromString("isBeta")),
+            toolsInfo.isBeta()
+        else { return }
+        
+        print(toolsInfo.toolsBetaVersion())
     }
 }
 
+/// Xcode 16.2 and earlier
 @objc
 protocol DVTToolsInfoPrivate {
     func isBeta() -> Bool

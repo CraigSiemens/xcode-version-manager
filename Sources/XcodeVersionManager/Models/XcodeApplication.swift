@@ -8,38 +8,11 @@ struct XcodeApplication: Encodable {
     let betaVersion: String?
     
     init(url: URL) throws {
+        let url = url.absoluteURL
         self.url = url
         
-        let versionNumberResults = try Process.execute(
-            "/usr/libexec/PlistBuddy",
-            arguments: [
-                "-c", "Print CFBundleShortVersionString",
-                "-c", "Print ProductBuildVersion",
-                url.absoluteURL
-                    .appendingPathComponent("Contents")
-                    .appendingPathComponent("version.plist")
-                    .path
-            ]
-        )
-        
-        let parts = String(decoding: versionNumberResults, as: UTF8.self)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .split(separator: "\n")
-        
-        self.versionNumber = String(parts[0])
-        self.buildNumber = String(parts[1])
-        
-        let betaVersionResults = try Process.execute(
-            Bundle.main.executablePath!,
-            arguments: [
-                "_beta-version-number",
-                url.path
-            ]
-        )
-        
-        self.betaVersion = String(decoding: betaVersionResults, as: UTF8.self)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .nilIfEmpty()
+        (self.versionNumber, self.buildNumber) = try Self.versionBuild(for: url)
+        self.betaVersion = try Self.betaNumber(for: url)
     }
 }
 

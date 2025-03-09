@@ -112,9 +112,8 @@ struct InstallCommand: AsyncParsableCommand {
         
         if !useXip {
             let handle = try FileHandle(forReadingFrom: url)
-            let data = DataReader(descriptor: handle.fileDescriptor)
             
-            for try await _ in Unxip.makeStream(from: .xip(input: data), to: .disk, input: .init(descriptor: handle.fileDescriptor)) {}
+            for try await _ in Unxip.makeStream(from: .xip(), to: .disk(), input: .init(descriptor: handle.fileDescriptor)) {}
         } else {
             try Process.execute(
                 "/usr/bin/xip",

@@ -19,17 +19,12 @@ struct DownloadCommand: AsyncParsableCommand {
             "The version number to download.",
             discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the newest matching version of Xcode is used."
         ),
-        completion: .custom { _ in
+        completion: .custom { _, _, _ in
             do {
-                struct EmptyResponse: Error {}
-                
-                let versionNumbers = try _unsafeWait {
-                    let releases = try await XcodeReleases().releases
-                    guard !releases.isEmpty else { throw EmptyResponse() }
-                    return releases.map { $0.version.formatted(style: .option) }
-                }
-                
-                return ["latest"] + Set(versionNumbers).sorted(by: >)
+                let releases = try await XcodeReleases().releases
+                let versionNumbers = releases.map { $0.version.formatted(style: .option) }
+                let versions = ["latest"] + versionNumbers
+                return versions
             } catch {
                 return []
             }

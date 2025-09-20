@@ -1,13 +1,13 @@
 {
-  "originHash" : "d378874644005a42fe5c5448269610ae930ce2b443ba5a5e596c651b0d0b8563",
+  "originHash" : "a3667ba6371a1f9d2ef80136ea7d0d87fca3a6b13bd95ce0479d96a0fb0c09de",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",
       "state" : {
-        "revision" : "41982a3656a71c768319979febd796c6fd111d5c",
-        "version" : "1.5.0"
+        "revision" : "309a47b2b1d9b5e991f36961c983ecec72275be3",
+        "version" : "1.6.1"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/saagarjha/unxip",
       "state" : {
-        "branch" : "main",
-        "revision" : "0348f523cf633a92dc9e5b23c6a1fe701f6f8098"
+        "revision" : "03c32d6b4e7d8a9fb58747e5f8b83397da8bf5ba",
+        "version" : "3.2.0"
       }
     }
   ],

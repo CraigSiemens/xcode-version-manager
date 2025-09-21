@@ -10,16 +10,14 @@ struct InstalledXcodeVersion: ParsableArguments {
         help: ArgumentHelp(
             "The version number of Xcode to uninstall."
         ),
-        completion: .custom { words in
+        completion: .custom { _, _, _ in
             do {
-                return try _unsafeWait {
-                    var formatter = XcodeVersionFormatter()
-                    formatter.separator = "-"
-                    
-                    return try await XcodeApplication
-                        .all()
-                        .map(formatter.string)
-                }
+                var formatter = XcodeVersionFormatter()
+                formatter.separator = "-"
+                
+                return try await XcodeApplication
+                    .all()
+                    .map(formatter.string)
             } catch {
                 return []
             }

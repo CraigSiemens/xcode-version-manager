@@ -25,7 +25,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/saagarjha/unxip",
-            branch: "main"
+            from: "3.2.0"
         ),
     ],
     targets: [

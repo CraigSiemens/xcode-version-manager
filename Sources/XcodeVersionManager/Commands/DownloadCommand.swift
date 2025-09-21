@@ -10,6 +10,12 @@ struct DownloadCommand: AsyncParsableCommand {
     
     @Flag(
         name: .shortAndLong,
+        help: .init("Prefer downloading a Universal version, if available.")
+    )
+    var preferUniversal: Bool = false
+    
+    @Flag(
+        name: .shortAndLong,
         help: .init("Download the matched version of Xcode without prompting for confirmation.")
     )
     var force: Bool = false
@@ -19,17 +25,12 @@ struct DownloadCommand: AsyncParsableCommand {
             "The version number to download.",
             discussion: "Matches Xcode versions that start with the entered string. In the case of multiple matches, the newest matching version of Xcode is used."
         ),
-        completion: .custom { _ in
+        completion: .custom { _, _, _ in
             do {
-                struct EmptyResponse: Error {}
-                
-                let versionNumbers = try _unsafeWait {
-                    let releases = try await XcodeReleases().releases
-                    guard !releases.isEmpty else { throw EmptyResponse() }
-                    return releases.map { $0.version.formatted(style: .option) }
-                }
-                
-                return ["latest"] + Set(versionNumbers).sorted(by: >)
+                let releases = try await XcodeReleasesAPI.releases()
+                let versionNumbers = releases.map { $0.version.formatted(style: .option) }
+                let versions = ["latest"] + versionNumbers
+                return versions
             } catch {
                 return []
             }
@@ -38,13 +39,28 @@ struct DownloadCommand: AsyncParsableCommand {
     var version: String = "latest"
     
     func run() async throws {
-        let releases = try await XcodeReleases()
+        let currentArchitecture = Architecture.current
+        
+        let releases = try await XcodeReleasesAPI.releases()
+            .filter { release in
+                guard let currentArchitecture else { return true }
+                
+                return release.download.architectures.isEmpty
+                || release.download.architectures.contains(currentArchitecture)
+            }
+            .sorted { lhs, rhs in
+                if preferUniversal {
+                    lhs.download.architectures.count > rhs.download.architectures.count
+                } else {
+                    lhs.download.architectures.count < rhs.download.architectures.count
+                }
+            }
         
         let matchingRelease: XcodeRelease?
         if version == "latest" {
-            matchingRelease = releases.releases.first
+            matchingRelease = releases.first
         } else {
-            matchingRelease = releases.releases
+            matchingRelease = releases
                 .first { $0.version.formatted(style: .option).hasPrefix(version) }
         }
         
@@ -62,7 +78,7 @@ struct DownloadCommand: AsyncParsableCommand {
         
         var downloadComponents = URLComponents(string: "https://developer.apple.com/services-account/download")!
         downloadComponents.queryItems = [
-            .init(name: "path", value: matchingRelease.downloadURL.path)
+            .init(name: "path", value: matchingRelease.download.url.path)
         ]
         
         NSWorkspace.shared.open(downloadComponents.url!)

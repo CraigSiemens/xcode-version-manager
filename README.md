@@ -79,7 +79,7 @@ OPTIONS:
   -h, --help              Show help information.
 
 SUBCOMMANDS:
-  list (default)          Lists the installed versions of Xcode.
+  list (default)          Lists versions of Xcode.
   download                Open the browser to download a version of Xcode.
   install                 Installs a version of Xcode from a downloaded xip
                           file.

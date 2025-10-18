@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Rainbow
 
 struct UseCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -22,7 +23,21 @@ struct UseCommand: AsyncParsableCommand {
         let xcodeVersion = formatter.string(from: xcode)
         print("Switching to \(xcodeVersion)")
         
-        try xcode.use(permissions: xcodeSelectPermissions)
+        do {
+            try xcode.use(permissions: xcodeSelectPermissions)
+        } catch let .sudoRequired(command) {
+            var standardError = StandardErrorOutputStream()
+            print(
+                """
+                Requires superuser permissions to be run.
+                Manually run the following or see `xcvm use --help` for more details.
+                """.red,
+                to: &standardError
+            )
+            
+            print(command)
+            throw ExitCode(1)
+        }
     }
 }
 
@@ -36,12 +51,19 @@ extension XcodeApplication.XcodeSelectPermissions: EnumerableFlag {
         case .inherit:
             ArgumentHelp(
                 "xcode-select will be run with same permissions xcvm has.",
-                discussion: #"Calling "sudo xcvm ..." may be required if you do not already have superuser permissions."#
+                discussion: """
+                Use one of the following based on you preference for granting superuser permissions.
+                  - Copy the output commands and paste them into your terminal.
+                  - `xcvm ... | bash` or `eval "$(xcvm ...)"`
+                    Automatically evaluate the output commands. 
+                  - `sudo xcvm ...`
+                    Give xcvm and its subprocesses superuser permissions.
+                """
             )
             
         case .sudoAskpass:
             ArgumentHelp(
-                #"xcvm will call xcode-select with "sudo --askpass ..."."#,
+                #"xcvm will call xcode-select with `sudo --askpass ...`."#,
                 discussion: """
                 The behaviour will be based on the system config.
                   1. If xcode-select has been added to sudoers with NOPASSWD, it won't need to prompt the user.

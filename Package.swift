@@ -20,6 +20,10 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(
+            url: "https://github.com/onevcat/Rainbow",
+            from: "4.0.0"
+        ),
+        .package(
             url: "https://github.com/apple/swift-argument-parser",
             from: "1.5.0"
         ),
@@ -36,6 +40,7 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "libunxip", package: "unxip"),
+                .product(name: "Rainbow", package: "Rainbow"),
                 .target(name: "TableKit")
             ]
         ),

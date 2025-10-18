@@ -16,55 +16,6 @@ struct XcodeApplication: Encodable {
     }
 }
 
-// MARK: - Use
-extension XcodeApplication {
-    enum XcodeSelectPermissions {
-        case inherit
-        case sudoAskpass
-    }
-    
-    func use(permissions: XcodeSelectPermissions) throws {
-        let xcodePath = url.absoluteURL.path
-        
-        switch permissions {
-        case .inherit:
-            // Works if xcvm is run with superuser permissions
-            try Process.execute(
-                "/usr/bin/xcode-select",
-                arguments: [
-                    "--switch",
-                    xcodePath
-                ]
-            )
-        case .sudoAskpass:
-            // Works if
-            //   xcode-select has NOPASSWD set in sudoers
-            //   touchid is enabled for sudo
-            //   SUDO_ASKPASS environment variable is set with a helper program
-            // otherwise fails to prompt for password
-            try Process.execute(
-                "/usr/bin/sudo",
-                arguments: [
-                    "--askpass",
-                    "/usr/bin/xcode-select",
-                    "--switch",
-                    xcodePath
-                ]
-            )
-        }
-        
-        // Register Xcode so plugins work correctly.
-        // https://nshipster.com/xcode-source-extensions/#using-pluginkit
-        try Process.execute(
-            "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister",
-            arguments: [
-                "-f",
-                xcodePath
-            ]
-        )
-    }
-}
-
 // MARK: - Comparable
 extension XcodeApplication: Comparable {
     static func < (lhs: XcodeApplication, rhs: XcodeApplication) -> Bool {

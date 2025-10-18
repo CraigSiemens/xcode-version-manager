@@ -19,14 +19,14 @@ struct UseCommand: AsyncParsableCommand {
     func run() async throws {
         let xcode = try await xcodeVersion.xcodeApplication()
         
+        var standardError = StandardErrorOutputStream()
         let formatter = XcodeVersionFormatter()
         let xcodeVersion = formatter.string(from: xcode)
-        print("Switching to \(xcodeVersion)")
+        print("Switching to \(xcodeVersion)", to: &standardError)
         
         do {
             try xcode.use(permissions: xcodeSelectPermissions)
         } catch let .sudoRequired(command) {
-            var standardError = StandardErrorOutputStream()
             print(
                 """
                 Requires superuser permissions to be run.

@@ -9,6 +9,10 @@ struct XcodeRelease {
     struct Download: Equatable {
         let architectures: [Architecture]
         let url: URL
+        
+        var isUniversal: Bool {
+            architectures.count == 2 || architectures.count == 0
+        }
     }
     
     struct Version: Equatable {

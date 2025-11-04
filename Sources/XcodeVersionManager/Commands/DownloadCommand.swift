@@ -50,9 +50,9 @@ struct DownloadCommand: AsyncParsableCommand {
             }
             .sorted { lhs, rhs in
                 if preferUniversal {
-                    lhs.download.architectures.count > rhs.download.architectures.count
+                    lhs.download.isUniversal && !rhs.download.isUniversal
                 } else {
-                    lhs.download.architectures.count < rhs.download.architectures.count
+                    !lhs.download.isUniversal && rhs.download.isUniversal
                 }
             }
         

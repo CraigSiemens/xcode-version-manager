@@ -8,7 +8,7 @@ jobs:
   homebrew:
     runs-on: ubuntu-latest
     steps:
-      - uses: dawidd6/action-homebrew-bump-formula@v5
+      - uses: dawidd6/action-homebrew-bump-formula@v6
         with:
           token: ${{ secrets.HOMEBREW_BUMP_FORMULA_TOKEN }}
           tap: CraigSiemens/homebrew-tap

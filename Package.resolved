@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Rainbow",
       "state" : {
-        "revision" : "16da5c62dd737258c6df2e8c430f8a3202f655a7",
-        "version" : "4.2.0"
+        "revision" : "cdf146ae671b2624917648b61c908d1244b98ca1",
+        "version" : "4.2.1"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",
       "state" : {
-        "revision" : "cdd0ef3755280949551dc26dee5de9ddeda89f54",
-        "version" : "1.6.2"
+        "revision" : "c5d11a805e765f52ba34ec7284bd4fcd6ba68615",
+        "version" : "1.7.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/saagarjha/unxip",
       "state" : {
-        "revision" : "03c32d6b4e7d8a9fb58747e5f8b83397da8bf5ba",
-        "version" : "3.2.0"
+        "revision" : "6c3990517fcc4c1db6952fccf4c562fb14097601",
+        "version" : "3.3.0"
       }
     }
   ],

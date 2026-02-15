@@ -20,7 +20,9 @@ struct BetaVersionNumberCommand: ParsableCommand {
             return
         }
         
-        let frameworkHandle = dlopen(dvtFoundationURL.path, RTLD_NOW)
+        guard let frameworkHandle = dlopen(dvtFoundationURL.path, RTLD_NOW) else {
+            return
+        }
         defer { dlclose(frameworkHandle) }
         
         let toolsInfoSelector = NSSelectorFromString("toolsInfo")

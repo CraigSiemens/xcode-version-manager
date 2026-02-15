@@ -24,8 +24,11 @@ extension XcodeApplication {
                 xcodePath
             ]
             
+            let currentUserID = String(decoding: userId, as: UTF8.self)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            
             // Is root user
-            if String(decoding: userId, as: UTF8.self) == "0" {
+            if currentUserID == "0" {
                 // Works if xcvm is run with superuser permissions
                 try execute(command, arguments: arguments)
             } else {

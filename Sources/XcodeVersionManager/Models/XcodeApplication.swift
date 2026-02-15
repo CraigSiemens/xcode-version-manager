@@ -39,17 +39,32 @@ extension XcodeApplication: Comparable {
 
 // MARK: Current
 extension XcodeApplication {
-    static func current() throws -> XcodeApplication {
+    static func current() throws -> XcodeApplication? {
         let results = try Process.execute("/usr/bin/xcode-select", arguments: ["--print-path"])
         
-        let path = String(decoding: results, as: UTF8.self)
+        let developerPath = String(decoding: results, as: UTF8.self)
             .trimmingCharacters(in: .whitespacesAndNewlines)
         
-        let url = URL(fileURLWithPath: path)
-            .deletingLastPathComponent() // Developer
-            .deletingLastPathComponent() // Contents
+        guard let url = currentXcodeURL(forDeveloperPath: developerPath) else {
+            return nil
+        }
         
         return try XcodeApplication(url: url)
+    }
+    
+    static func currentXcodeURL(forDeveloperPath developerPath: String) -> URL? {
+        let url = URL(fileURLWithPath: developerPath)
+        guard url.lastPathComponent == "Developer" else {
+            return nil
+        }
+        
+        guard url.deletingLastPathComponent().lastPathComponent == "Contents" else {
+            return nil
+        }
+        
+        return url
+            .deletingLastPathComponent() // Developer
+            .deletingLastPathComponent() // Contents
     }
 }
 

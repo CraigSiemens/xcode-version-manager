@@ -29,12 +29,12 @@ extension ListCommand {
             let rows = try await XcodeApplication
                 .all()
                 .sorted(by: >)
-                .map {
+                .map { xcode in
                     Row(
-                        current: $0 == current ? "*" : " ",
-                        formattedVersion: formatter.string(from: $0),
-                        buildNumber: $0.buildNumber,
-                        name: $0.url.lastPathComponent
+                        current: xcode == current ? "*" : " ",
+                        formattedVersion: formatter.string(from: xcode),
+                        buildNumber: xcode.buildNumber,
+                        name: xcode.url.lastPathComponent
                     )
                 }
             

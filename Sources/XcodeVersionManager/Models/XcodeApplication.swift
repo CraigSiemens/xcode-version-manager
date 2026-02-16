@@ -52,7 +52,7 @@ extension XcodeApplication {
         return try XcodeApplication(url: url)
     }
     
-    static func currentXcodeURL(forDeveloperPath developerPath: String) -> URL? {
+    private static func currentXcodeURL(forDeveloperPath developerPath: String) -> URL? {
         let url = URL(fileURLWithPath: developerPath)
         guard url.lastPathComponent == "Developer" else {
             return nil
